@@ -34,12 +34,13 @@ export default function BudgetListPage() {
     <div>
       <h1>Orçamentos</h1>
       <ul>
-        {budgets?.map((budget) => (
-          <li key={budget.id}>
-            {budget.customerName} - R$ {budget.total} -{" "}
-            {new Date(budget.createdAt).toLocaleDateString()}
-          </li>
-        ))}
+        {budgets.length &&
+          budgets?.map((budget) => (
+            <li key={budget.id}>
+              {budget.customerName} - R$ {budget.total} -{" "}
+              {new Date(budget.createdAt).toLocaleDateString()}
+            </li>
+          ))}
       </ul>
     </div>
   );

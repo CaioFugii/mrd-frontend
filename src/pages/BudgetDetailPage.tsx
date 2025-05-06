@@ -12,7 +12,6 @@ interface Addon {
 interface Item {
   productNameSnapshot: string;
   productPriceSnapshot: number;
-  quantity: number;
   totalPrice: number;
   addons: Addon[];
 }
@@ -77,8 +76,8 @@ export default function BudgetDetailPage() {
       {budget.items.map((item, index) => (
         <div key={index}>
           <p>
-            1x {item.productNameSnapshot} - R$ {item.productPriceSnapshot}{" "}
-            (Total: R$ {item.totalPrice})
+            {item.productNameSnapshot} - R$ {item.productPriceSnapshot} (Total:
+            R$ {item.totalPrice})
           </p>
           {item.addons?.length > 0 && (
             <ul>

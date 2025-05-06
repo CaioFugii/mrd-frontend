@@ -1,7 +1,8 @@
 import axios from "axios";
+import { logoutOn401 } from "./logout-helper";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000", // ajuste se necessário
+  baseURL: "http://localhost:3000",
 });
 
 api.interceptors.request.use((config) => {
@@ -11,5 +12,15 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      logoutOn401();
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;
