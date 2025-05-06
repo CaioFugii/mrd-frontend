@@ -64,6 +64,7 @@ export default function ApproveRejectPage() {
   return (
     <div>
       <h1>Aprovar/Rejeitar Orçamento</h1>
+      <button onClick={() => navigate("/budgets")}>← Voltar para lista</button>
       <p>
         <strong>Cliente:</strong> {budget.customerName}
       </p>

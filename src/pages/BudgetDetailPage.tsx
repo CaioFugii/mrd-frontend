@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../services/api";
 
@@ -29,6 +29,7 @@ interface Budget {
 
 export default function BudgetDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [budget, setBudget] = useState<Budget | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -53,6 +54,7 @@ export default function BudgetDetailPage() {
   return (
     <div>
       <h1>Detalhes do Orçamento</h1>
+      <button onClick={() => navigate("/budgets")}>← Voltar para lista</button>
       <p>
         <strong>Cliente:</strong> {budget.customerName}
       </p>

@@ -20,7 +20,6 @@ export default function AppRoutes() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
 
-      {/* rotas protegidas */}
       <Route element={<RequireAuth />}>
         <Route element={<RequireRole allowedRole="SUPER_USER" />}>
           <Route path="/register" element={<RegisterSellerPage />} />

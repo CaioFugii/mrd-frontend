@@ -30,6 +30,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const decoded = jwtDecode<JwtPayload>(token);
         const isExpired = decoded.exp * 1000 < Date.now();
 
+        console.log(decoded);
+
         if (isExpired) {
           logout();
         } else {
