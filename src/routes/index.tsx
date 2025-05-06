@@ -28,7 +28,7 @@ export default function AppRoutes() {
           <Route path="/products/:id/edit" element={<ProductFormPage />} />
           <Route path="/addons/new" element={<AddonFormPage />} />
           <Route path="/addons/:id/edit" element={<AddonFormPage />} />
-          <Route path="/teste/:id/approve" element={<ApproveRejectPage />} />
+          <Route path="/budgets/:id/approve" element={<ApproveRejectPage />} />
         </Route>
 
         <Route path="/change-password" element={<ChangePasswordPage />} />
