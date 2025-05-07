@@ -15,10 +15,13 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const response = await axios.post("http://localhost:3000/auth/login", {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        `${process.env.REACT_BASE_URL}/auth/login`,
+        {
+          email,
+          password,
+        }
+      );
 
       const token = response.data.access_token;
       login(token);
