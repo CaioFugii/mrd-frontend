@@ -54,6 +54,7 @@ export default function AddonFormPage() {
   return (
     <div>
       <h1>{isEditing ? "Editar Adicional" : "Criar Adicional"}</h1>
+      <button onClick={() => navigate("/addons")}>← Voltar para lista</button>
 
       <form onSubmit={handleSubmit}>
         <div>

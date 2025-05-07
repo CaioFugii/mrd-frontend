@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 import BudgetItemEditor from "../components/BudgetItemEditor";
+import { useNavigate } from "react-router-dom";
 
 interface ProductAddon {
   id: string;
@@ -27,6 +28,7 @@ interface SelectedItem {
 }
 
 export default function BudgetFormPage() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [items, setItems] = useState<SelectedItem[]>([]);
 
@@ -82,6 +84,7 @@ export default function BudgetFormPage() {
   return (
     <div>
       <h1>Criar Orçamento</h1>
+      <button onClick={() => navigate("/budgets")}>← Voltar para lista</button>
 
       <h2>Dados do Cliente</h2>
       <div>

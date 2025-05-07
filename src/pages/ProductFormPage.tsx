@@ -77,6 +77,7 @@ export default function ProductFormPage() {
   return (
     <div>
       <h1>{isEditing ? "Editar Produto" : "Criar Produto"}</h1>
+      <button onClick={() => navigate("/products")}>← Voltar para lista</button>
 
       <form onSubmit={handleSubmit}>
         <div>
