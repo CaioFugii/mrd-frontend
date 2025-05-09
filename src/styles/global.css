@@ -19,9 +19,9 @@ html {
   color: var(--cor-primaria);
 }
 
-.title-login {
-  font: bold;
-  text-align: center;
+.container-img {
+  display: flex;
+  justify-content: center;
 }
 
 .container {
@@ -44,7 +44,7 @@ html {
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
   width: 100%;
-  max-width: 500px;
+  max-width: 400px;
 }
 
 .container-button-login {
@@ -53,8 +53,8 @@ html {
 }
 
 .button {
-  background-color: transparent;
-  color: var(--cor-secundaria);
+  background-color: var(--cor-primaria);
+  color: var(--white);
   padding: 8px 50px;
   font-family: var(--fonte-principal);
   font-weight: bold;
@@ -93,4 +93,27 @@ html {
   color: var(--error);
   font-weight: bolder;
   text-align: center;
+}
+
+.link-navbar {
+  background-color: transparent;
+  color: var(--white);
+  font-family: var(--fonte-principal);
+  text-decoration: none;
+  padding: 1rem;
+  &:hover {
+    background-color: var(--cor-secundaria);
+  }
+}
+
+.nav-bar {
+  background-color: var(--cor-primaria);
+  background: linear-gradient(
+    to right,
+    var(--cor-primaria),
+    var(--cor-secundaria)
+  );
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
 }

@@ -5,90 +5,36 @@ export default function Navbar() {
   const { logout, role } = useAuth();
   const isSuperUser = role === "SUPER_USER";
 
-  const linkStyle: React.CSSProperties = {
-    color: "#FFFFFF",
-    textDecoration: "none",
-    marginRight: "1rem",
-  };
-
   return (
-    <nav
-      style={{
-        backgroundColor: "#282f52",
-        padding: "1rem",
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "center",
-      }}
-    >
-      <Link
-        to="/budgets"
-        style={linkStyle}
-        onMouseOver={(e) => (e.currentTarget.style.color = "#5791b2")}
-        onMouseOut={(e) => (e.currentTarget.style.color = "#FFFFFF")}
-      >
+    <nav className="nav-bar">
+      <Link className="link-navbar" to="/budgets">
         Orçamentos
       </Link>
-      <Link
-        to="/budgets/new"
-        style={linkStyle}
-        onMouseOver={(e) => (e.currentTarget.style.color = "#5791b2")}
-        onMouseOut={(e) => (e.currentTarget.style.color = "#FFFFFF")}
-      >
+      <Link className="link-navbar" to="/budgets/new">
         Novo Orçamento
       </Link>
-      <Link
-        to="/products"
-        style={linkStyle}
-        onMouseOver={(e) => (e.currentTarget.style.color = "#5791b2")}
-        onMouseOut={(e) => (e.currentTarget.style.color = "#FFFFFF")}
-      >
+      <Link className="link-navbar" to="/products">
         Produtos
       </Link>
-      <Link
-        to="/addons"
-        style={linkStyle}
-        onMouseOver={(e) => (e.currentTarget.style.color = "#5791b2")}
-        onMouseOut={(e) => (e.currentTarget.style.color = "#FFFFFF")}
-      >
+      <Link className="link-navbar" to="/addons">
         Adicionais
       </Link>
 
       {isSuperUser && (
         <>
-          <Link
-            to="/register"
-            style={linkStyle}
-            onMouseOver={(e) => (e.currentTarget.style.color = "#5791b2")}
-            onMouseOut={(e) => (e.currentTarget.style.color = "#FFFFFF")}
-          >
+          <Link className="link-navbar" to="/register">
             Novo Vendedor
           </Link>
-          <Link
-            to="/products/new"
-            style={linkStyle}
-            onMouseOver={(e) => (e.currentTarget.style.color = "#5791b2")}
-            onMouseOut={(e) => (e.currentTarget.style.color = "#FFFFFF")}
-          >
+          <Link className="link-navbar" to="/products/new">
             Novo Produto
           </Link>
-          <Link
-            to="/addons/new"
-            style={linkStyle}
-            onMouseOver={(e) => (e.currentTarget.style.color = "#5791b2")}
-            onMouseOut={(e) => (e.currentTarget.style.color = "#FFFFFF")}
-          >
+          <Link className="link-navbar" to="/addons/new">
             Novo Adicional
           </Link>
         </>
       )}
 
-      <Link
-        to="/change-password"
-        style={linkStyle}
-        onMouseOver={(e) => (e.currentTarget.style.color = "#5791b2")}
-        onMouseOut={(e) => (e.currentTarget.style.color = "#FFFFFF")}
-      >
+      <Link className="link-navbar" to="/change-password">
         Trocar Senha
       </Link>
 
@@ -102,8 +48,6 @@ export default function Navbar() {
           fontSize: "1rem",
           marginLeft: "auto",
         }}
-        onMouseOver={(e) => (e.currentTarget.style.color = "#5791b2")}
-        onMouseOut={(e) => (e.currentTarget.style.color = "#FFFFFF")}
       >
         Sair
       </button>
