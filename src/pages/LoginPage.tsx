@@ -33,87 +33,40 @@ export default function LoginPage() {
   }
 
   return (
-    <div
-      style={{
-        backgroundColor: "#282f52",
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        color: "#FFFFFF",
-      }}
-    >
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          backgroundColor: "#ffffff",
-          padding: "2rem",
-          borderRadius: "8px",
-          boxShadow: "0 0 10px rgba(0,0,0,0.2)",
-          width: "100%",
-          maxWidth: "400px",
-          color: "#282f52",
-        }}
-      >
-        <h1 style={{ textAlign: "center", marginBottom: "1.5rem" }}>Login</h1>
+    <div className="container">
+      <form onSubmit={handleSubmit} className="form-login-container">
+        <h1 className="title-login  text-login">MRD Containers</h1>
+        <div style={{ maxWidth: "100%" }}>
+          <div className="form-input-container">
+            <label className="text-login">Email:</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="form-input"
+              placeholder="user@email.com"
+            />
+          </div>
 
-        <div style={{ marginBottom: "1rem" }}>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{
-              width: "100%",
-              padding: "0.5rem",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-              marginTop: "0.25rem",
-            }}
-          />
+          <div className="form-input-container">
+            <label className="text-login">Senha:</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="form-input"
+            />
+          </div>
+
+          {error && <p className="error-message ">{error}</p>}
+          <div className="container-button-login">
+            <button type="submit" className="button">
+              Login
+            </button>
+          </div>
         </div>
-
-        <div style={{ marginBottom: "1rem" }}>
-          <label>Senha:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{
-              width: "100%",
-              padding: "0.5rem",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-              marginTop: "0.25rem",
-            }}
-          />
-        </div>
-
-        {error && (
-          <p
-            style={{ color: "red", marginBottom: "1rem", textAlign: "center" }}
-          >
-            {error}
-          </p>
-        )}
-
-        <button
-          type="submit"
-          style={{
-            width: "100%",
-            padding: "0.75rem",
-            backgroundColor: "#5791b2",
-            color: "#fff",
-            border: "none",
-            borderRadius: "4px",
-            fontWeight: "bold",
-            cursor: "pointer",
-          }}
-        >
-          Entrar
-        </button>
       </form>
     </div>
   );
