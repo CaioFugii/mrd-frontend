@@ -7,6 +7,8 @@ interface Budget {
   id: string;
   customerName: string;
   customerEmail: string;
+  customerPhone: string;
+  seller: { name: string };
   total: number;
   createdAt: string;
   requiresApproval: boolean;
@@ -40,66 +42,63 @@ export default function BudgetListPage() {
   if (loading) return <p>Carregando...</p>;
 
   return (
-    <div style={{ padding: "2rem" }}>
+    <div className="table-container">
       <h1 style={{ color: "#282f52", marginBottom: "2rem" }}>Orçamentos</h1>
 
       {budgets.length === 0 && <p>Nenhum orçamento encontrado.</p>}
+      <table className="styled-table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Telefone</th>
+            <th>Valor</th>
+            <th>Data Criação</th>
+            <th>Vendedor</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {budgets.map((budget) => (
+            <tr key={budget.id}>
+              <td>{budget.customerName}</td>
+              <td>{budget.customerEmail}</td>
+              <td>{budget.customerPhone}</td>
+              <td>{budget.total}</td>
 
-      <ul style={{ listStyle: "none", padding: 0 }}>
-        {budgets.map((budget) => (
-          <li
-            key={budget.id}
-            style={{
-              backgroundColor: "#ffffff",
-              borderRadius: "8px",
-              padding: "1rem",
-              marginBottom: "1rem",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-            }}
-          >
-            <p style={{ marginBottom: "0.5rem" }}>
-              <strong>{budget.customerName}</strong> – R$ {budget.total}
-            </p>
-            <p style={{ color: "#555", marginBottom: "1rem" }}>
-              Criado em: {new Date(budget.createdAt).toLocaleDateString()}
-            </p>
+              <td>
+                {" "}
+                Criado em: {new Date(budget.createdAt).toLocaleDateString()}
+              </td>
+              <td>{budget.seller.name}</td>
 
-            <button
-              onClick={() => navigate(`/budgets/${budget.id}`)}
-              style={{
-                backgroundColor: "#5791b2",
-                color: "#ffffff",
-                border: "none",
-                padding: "0.5rem 1rem",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              Visualizar
-            </button>
-
-            {budget.requiresApproval &&
-              isSuperUser &&
-              !budget.approved &&
-              !budget.rejected && (
-                <button
-                  onClick={() => navigate(`/budgets/${budget.id}/approve`)}
-                  style={{
-                    backgroundColor: "#282f52",
-                    color: "#ffffff",
-                    border: "none",
-                    padding: "0.5rem 1rem",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                    marginLeft: "0.75rem",
-                  }}
-                >
-                  Aprovar / Rejeitar
-                </button>
-              )}
-          </li>
-        ))}
-      </ul>
+              <td>
+                <div style={{ display: "flex" }}>
+                  <button
+                    onClick={() => navigate(`/budgets/${budget.id}`)}
+                    className="button-table"
+                  >
+                    Visualizar
+                  </button>
+                  {budget.requiresApproval &&
+                    isSuperUser &&
+                    !budget.approved &&
+                    !budget.rejected && (
+                      <button
+                        onClick={() =>
+                          navigate(`/budgets/${budget.id}/approve`)
+                        }
+                        className="button-approve"
+                      >
+                        Aprovar / Rejeitar
+                      </button>
+                    )}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

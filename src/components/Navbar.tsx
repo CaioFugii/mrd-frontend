@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { RxExit } from "react-icons/rx";
 
 export default function Navbar() {
   const { logout, role } = useAuth();
@@ -49,7 +50,7 @@ export default function Navbar() {
           marginLeft: "auto",
         }}
       >
-        Sair
+        <RxExit />
       </button>
     </nav>
   );

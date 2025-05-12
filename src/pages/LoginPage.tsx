@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import { FaRegEye } from "react-icons/fa6";
+import { IoEyeOffOutline } from "react-icons/io5";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -85,7 +87,7 @@ export default function LoginPage() {
                 userSelect: "none",
               }}
             >
-              {visible ? "🙈" : "👁️"}
+              {visible ? <FaRegEye /> : <IoEyeOffOutline />}
             </span>
           </div>
 

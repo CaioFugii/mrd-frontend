@@ -82,35 +82,41 @@ export default function BudgetFormPage() {
   }
 
   return (
-    <div>
-      <h1>Criar Orçamento</h1>
-      <button onClick={() => navigate("/budgets")}>← Voltar para lista</button>
+    <form className="form-container">
+      <header>Criar Orçamento</header>
+      <button className="back-button" onClick={() => navigate("/budgets")}>
+        ← Voltar para lista
+      </button>
 
       <h2>Dados do Cliente</h2>
-      <div>
+      <div className="form-group">
         <label>Nome:</label>
         <input
+          className="form-input-container form-input"
           value={customerName}
           onChange={(e) => setCustomerName(e.target.value)}
         />
       </div>
-      <div>
+      <div className="form-group">
         <label>Email:</label>
         <input
+          className="form-input-container form-input"
           value={customerEmail}
           onChange={(e) => setCustomerEmail(e.target.value)}
         />
       </div>
-      <div>
+      <div className="form-group">
         <label>Telefone:</label>
         <input
+          className="form-input-container form-input"
           value={customerPhone}
           onChange={(e) => setCustomerPhone(e.target.value)}
         />
       </div>
-      <div>
+      <div className="form-group">
         <label>Desconto (%):</label>
         <input
+          className="form-input-container form-input"
           type="number"
           value={discountPercent}
           onChange={(e) => setDiscountPercent(Number(e.target.value))}
@@ -122,7 +128,15 @@ export default function BudgetFormPage() {
         {products.map((product) => (
           <li key={product.id}>
             {product.name} - R$ {product.price}
-            <button onClick={() => addProduct(product.id)}>Adicionar</button>
+            <button
+              className="button"
+              onClick={(e) => {
+                e.preventDefault();
+                addProduct(product.id);
+              }}
+            >
+              Adicionar
+            </button>
           </li>
         ))}
       </ul>
@@ -146,7 +160,9 @@ export default function BudgetFormPage() {
           }}
         />
       ))}
-      <button onClick={handleSubmit}>Salvar Orçamento</button>
-    </div>
+      <button className="button" onClick={handleSubmit}>
+        Salvar Orçamento
+      </button>
+    </form>
   );
 }

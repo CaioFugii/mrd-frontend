@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import { BsPencilSquare } from "react-icons/bs";
 
 interface Addon {
   id: string;
@@ -36,28 +37,43 @@ export default function AddonListPage() {
   if (loading) return <p>Carregando...</p>;
 
   return (
-    <div>
-      <h1>Adicionais Cadastrados</h1>
+    <div className="table-container">
+      <h1 style={{ color: "#282f52", marginBottom: "2rem" }}>Cadastrados</h1>
 
-      <ul>
-        {addons.length &&
-          addons.map((addon) => (
-            <li key={addon.id} style={{ marginBottom: "1rem" }}>
-              <p>
-                <strong>{addon.name}</strong> - R$ {addon.price}
-                <br />
-                Status: {addon.enabled ? "Ativo" : "Inativo"}
-              </p>
-              {isSuperUser && (
-                <>
-                  <button onClick={() => navigate(`/addons/${addon.id}/edit`)}>
-                    Editar
-                  </button>
-                </>
-              )}
-            </li>
+      <table className="styled-table">
+        <thead>
+          <tr>
+            <th>Produto</th>
+            <th>Descrição</th>
+            <th>Preço</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {addons.map((addon) => (
+            <tr key={addon.id}>
+              <td>{addon.name} </td>
+              <td>{addon.description}</td>
+              <td>{addon.price}</td>
+              <td>{addon.enabled ? "Ativo" : "Inativo"}</td>
+              <td>
+                {" "}
+                {isSuperUser && (
+                  <>
+                    <button
+                      className="button-edit"
+                      onClick={() => navigate(`/products/${addon.id}/edit`)}
+                    >
+                      <BsPencilSquare />
+                    </button>
+                  </>
+                )}
+              </td>
+            </tr>
           ))}
-      </ul>
+        </tbody>
+      </table>
     </div>
   );
 }

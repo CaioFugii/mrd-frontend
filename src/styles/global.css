@@ -117,3 +117,76 @@ html {
   flex-wrap: wrap;
   align-items: center;
 }
+
+.table-container {
+  padding: 2rem;
+  font-family: var(--fonte-principal);
+}
+
+.styled-table {
+  max-width: 100%;
+  min-width: 70%;
+  border-collapse: collapse;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.styled-table thead {
+  background-color: var(--cor-primaria);
+  color: var(--white);
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 10px 15px;
+  text-align: left;
+}
+.styled-table tr {
+  border: 1px solid #302f2f;
+}
+
+.styled-table tr:nth-child(even) {
+  background-color: #f3f3f3;
+}
+
+.form-container {
+  border: 1px solid var(--cor-secundaria);
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(40, 47, 82, 0.1);
+  font-family: var(--fonte-principal);
+  color: var(--cor-primaria);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.button-table {
+  background-color: var(--cor-secundaria);
+  color: var(--white);
+  padding: 0.5rem 1rem;
+  font-family: var(--fonte-principal);
+  font-weight: bold;
+  border: 1px solid var(--cor-secundaria);
+  border-radius: 5%;
+  margin-right: 3px;
+  cursor: pointer;
+}
+
+.button-approve {
+  background-color: var(--cor-primaria);
+  color: var(--white);
+  padding: 0.5rem 1rem;
+  font-family: var(--fonte-principal);
+  font-weight: bold;
+  border: 1px solid var(--cor-primaria);
+  border-radius: 5%;
+  cursor: pointer;
+}
+
+.button-edit {
+  border: none;
+  cursor: pointer;
+}
