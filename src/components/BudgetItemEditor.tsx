@@ -4,6 +4,7 @@ import Button from "react-bootstrap/Button";
 import { MdDeleteOutline } from "react-icons/md";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
+import { formatToBRL } from "../utils/formatToBRL";
 
 interface ProductAddon {
   id: string;
@@ -21,6 +22,7 @@ interface Props {
   addons: SelectedAddon[];
   onChange: (updated: { quantity: number; addons: SelectedAddon[] }) => void;
   onRemove: () => void;
+  onError: (message: string) => void;
 }
 
 export default function BudgetItemEditor({
@@ -28,6 +30,7 @@ export default function BudgetItemEditor({
   addons,
   onChange,
   onRemove,
+  onError,
 }: Props) {
   const [productName, setProductName] = useState("");
   const [price, setPrice] = useState(0);
@@ -47,7 +50,8 @@ export default function BudgetItemEditor({
         );
         setAvailableAddons(addonsEnables);
       } catch (err) {
-        console.error("Erro ao carregar produto/adicionais:", err);
+        console.error("Erro ao carregar produto adicionais:", err);
+        onError("Erro ao carregar produto adicionais");
       } finally {
         setLoading(false);
       }
@@ -89,7 +93,7 @@ export default function BudgetItemEditor({
         }}
       >
         <p>
-          <strong>{productName}</strong> - R$ {price}
+          <strong>{productName}</strong> - {formatToBRL(price)}
         </p>
         <Button onClick={onRemove}>
           <MdDeleteOutline />
@@ -105,14 +109,22 @@ export default function BudgetItemEditor({
             <InputGroup size="sm" className="mb-3">
               <InputGroup.Text id="inputGroup-sizing-sm">
                 {" "}
-                {addon.name} (R$ {addon.price})
+                {addon.name} ({formatToBRL(addon.price)})
               </InputGroup.Text>
               <Form.Control
                 aria-describedby="inputGroup-sizing-sm"
-                type="number"
-                min={0}
+                inputMode="numeric"
+                type="text"
                 value={selected?.quantity || 0}
-                onChange={(e) => updateAddon(addon.id, Number(e.target.value))}
+                onChange={(e) => {
+                  const onlyDigits = e.target.value.replace(/\D/g, "");
+                  const value = Number(onlyDigits);
+                  if (value >= 0) {
+                    updateAddon(addon.id, value);
+                  } else if (onlyDigits === "") {
+                    updateAddon(addon.id, 0);
+                  }
+                }}
               />
             </InputGroup>
           </div>

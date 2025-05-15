@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import api from "../services/api";
 import autoTable from "jspdf-autotable";
+import { formatToBRL } from "../utils/formatToBRL";
 
 interface Addon {
   addonNameSnapshot: string;
@@ -75,7 +76,7 @@ export default function BudgetDetailPage() {
     y += 6;
     doc.text(`Desconto: ${budget.discountPercent}%`, 10, y);
     y += 6;
-    doc.text(`Total: R$ ${budget.total}`, 10, y);
+    doc.text(`Total: ${formatToBRL(budget.total)}`, 10, y);
     y += 10;
 
     const rows: string[][] = [];
@@ -83,15 +84,15 @@ export default function BudgetDetailPage() {
     budget.items.forEach((item, index) => {
       rows.push([
         `${index + 1}. ${item.productNameSnapshot}`,
-        `R$ ${item.productPriceSnapshot}`,
-        `R$ ${item.totalPrice}`,
+        `${formatToBRL(item.productPriceSnapshot)}`,
+        `${formatToBRL(item.totalPrice)}`,
       ]);
 
       item.addons?.forEach((addon) => {
         rows.push([
           `     ${addon.quantity}x ${addon.addonNameSnapshot}`,
-          `R$ ${addon.addonPriceSnapshot}`,
-          `R$ ${addon.totalPrice}`,
+          `${formatToBRL(addon.addonPriceSnapshot)}`,
+          `${formatToBRL(addon.totalPrice)}`,
         ]);
       });
     });
@@ -140,22 +141,23 @@ export default function BudgetDetailPage() {
         <strong>Desconto:</strong> {budget.discountPercent}%
       </p>
       <p>
-        <strong>Total:</strong> R$ {budget.total}
+        <strong>Total:</strong> {formatToBRL(budget.total)}
       </p>
 
       <h2>Itens</h2>
       {budget.items.map((item, index) => (
         <div key={index}>
           <p>
-            {item.productNameSnapshot} - R$ {item.productPriceSnapshot} (Total:
-            R$ {item.totalPrice})
+            {item.productNameSnapshot} -{" "}
+            {formatToBRL(item.productPriceSnapshot)} (Total:
+            {formatToBRL(item.totalPrice)})
           </p>
           {item.addons?.length > 0 && (
             <ul>
               {item.addons.map((addon, i) => (
                 <li key={i}>
-                  {addon.quantity} x {addon.addonNameSnapshot} - R${" "}
-                  {addon.totalPrice}
+                  {addon.quantity} x {addon.addonNameSnapshot} -{" "}
+                  {formatToBRL(addon.totalPrice)}
                 </li>
               ))}
             </ul>

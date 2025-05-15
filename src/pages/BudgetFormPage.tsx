@@ -4,10 +4,13 @@ import BudgetItemEditor from "../components/BudgetItemEditor";
 import { useNavigate } from "react-router-dom";
 import Form from "react-bootstrap/Form";
 import Card from "react-bootstrap/Card";
+import Alert from "react-bootstrap/Alert";
 import ListGroup from "react-bootstrap/ListGroup";
 import Button from "react-bootstrap/Button";
 import { MdOutlineFileDownloadDone } from "react-icons/md";
 import { IoReturnUpBackOutline } from "react-icons/io5";
+import { formatToBRL } from "../utils/formatToBRL";
+import { formatPhone } from "../utils/formatPhone";
 
 interface ProductAddon {
   id: string;
@@ -37,6 +40,7 @@ export default function BudgetFormPage() {
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [items, setItems] = useState<SelectedItem[]>([]);
+  const [message, setMessage] = useState("");
 
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
@@ -45,8 +49,13 @@ export default function BudgetFormPage() {
 
   useEffect(() => {
     async function fetchProducts() {
-      const res = await api.get("/products"); // ajuste se sua rota for diferente
-      setProducts(res.data.data);
+      try {
+        const res = await api.get("/products?limit=100");
+        setProducts(res.data.data);
+      } catch (error) {
+        console.error("Erro ao buscar produtos:", error);
+        setMessage("Erro ao buscar produtos");
+      }
     }
 
     fetchProducts();
@@ -75,7 +84,7 @@ export default function BudgetFormPage() {
       };
 
       await api.post("/budgets", payload);
-      alert("Orçamento criado com sucesso!");
+      setMessage("Orçamento criado com sucesso!");
       setCustomerName("");
       setCustomerEmail("");
       setCustomerPhone("");
@@ -83,7 +92,7 @@ export default function BudgetFormPage() {
       setItems([]);
     } catch (err) {
       console.error("Erro ao criar orçamento:", err);
-      alert("Erro ao criar orçamento");
+      setMessage("Erro ao criar orçamento");
     }
   }
 
@@ -107,6 +116,7 @@ export default function BudgetFormPage() {
             <Form.Label>Nome</Form.Label>
             <Form.Control
               type="text"
+              value={customerName}
               placeholder="Nome e sobrenome"
               onChange={(e) => setCustomerName(e.target.value)}
             />
@@ -115,6 +125,7 @@ export default function BudgetFormPage() {
             <Form.Label>Email</Form.Label>
             <Form.Control
               type="email"
+              value={customerEmail}
               placeholder="name@example.com"
               onChange={(e) => setCustomerEmail(e.target.value)}
             />
@@ -123,16 +134,27 @@ export default function BudgetFormPage() {
             <Form.Label>Telefone</Form.Label>
             <Form.Control
               type="phone"
+              value={customerPhone}
               placeholder="(xx)xxxx-xxxx"
-              onChange={(e) => setCustomerPhone(e.target.value)}
+              maxLength={15}
+              onChange={(e) => setCustomerPhone(formatPhone(e.target.value))}
             />
           </Form.Group>
           <Form.Group className="mb-3" controlId="discountPercent">
             <Form.Label>Desconto (%)</Form.Label>
             <Form.Control
               type="text"
+              value={discountPercent}
               placeholder="0"
-              onChange={(e) => setDiscountPercent(Number(e.target.value))}
+              onChange={(e) => {
+                const onlyDigits = e.target.value.replace(/\D/g, "");
+                const value = Number(onlyDigits);
+                if (value >= 0 && value <= 100) {
+                  setDiscountPercent(value);
+                } else if (onlyDigits === "") {
+                  setDiscountPercent(0);
+                }
+              }}
             />
           </Form.Group>
 
@@ -143,7 +165,7 @@ export default function BudgetFormPage() {
                 {products.map((product) => (
                   <ListGroup key={product.id} as="ol">
                     <ListGroup.Item variant="light">
-                      <div>
+                      <>
                         <Button
                           style={{ marginRight: "10px" }}
                           variant="primary"
@@ -154,8 +176,8 @@ export default function BudgetFormPage() {
                         >
                           <MdOutlineFileDownloadDone />
                         </Button>
-                        {product.name} - R$ {product.price}
-                      </div>
+                        {product.name} - {formatToBRL(product.price)}
+                      </>
                     </ListGroup.Item>
                   </ListGroup>
                 ))}
@@ -183,6 +205,7 @@ export default function BudgetFormPage() {
                     onRemove={() => {
                       setItems(items.filter((_, i) => i !== index));
                     }}
+                    onError={(errorMessage) => setMessage(errorMessage)}
                   />
                 ))}
               </Card.Text>
@@ -191,6 +214,19 @@ export default function BudgetFormPage() {
           <Button onClick={handleSubmit}>Salvar Orçamento</Button>
         </Form>
       </div>
+      {message && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            margin: "20px 0px",
+          }}
+        >
+          <Alert variant={message.includes("sucesso") ? "success" : "danger"}>
+            {message}
+          </Alert>
+        </div>
+      )}
     </div>
   );
 }

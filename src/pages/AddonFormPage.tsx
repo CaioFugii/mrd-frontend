@@ -113,7 +113,9 @@ export default function AddonFormPage() {
             margin: "20px 0px",
           }}
         >
-          <Alert variant={"success"}>{message}</Alert>
+          <Alert variant={message.includes("sucesso") ? "success" : "danger"}>
+            {message}
+          </Alert>
         </div>
       )}
     </div>

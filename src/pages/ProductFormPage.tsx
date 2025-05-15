@@ -10,6 +10,7 @@ import InputGroup from "react-bootstrap/InputGroup";
 interface Addon {
   id: string;
   name: string;
+  enabled: boolean;
 }
 
 export default function ProductFormPage() {
@@ -128,6 +129,11 @@ export default function ProductFormPage() {
 
           <div>
             <h4>Adicionais disponíveis</h4>
+            {addons.some((addon) => !addon.enabled) && (
+              <small style={{ color: "red" }}>
+                * Itens em vermelho se encontram desabilitados no momento.
+              </small>
+            )}
             {addons.length &&
               addons?.map((addon) => (
                 <label>
@@ -141,8 +147,10 @@ export default function ProductFormPage() {
                         setSelectedAddonIds(updated);
                       }}
                     />
-                    <InputGroup.Text id="inputGroup-sizing-sm">
-                      {" "}
+                    <InputGroup.Text
+                      id="inputGroup-sizing-sm"
+                      style={{ color: addon.enabled ? "black" : "red" }}
+                    >
                       {addon.name}
                     </InputGroup.Text>
                   </InputGroup>
@@ -161,7 +169,9 @@ export default function ProductFormPage() {
             margin: "20px 0px",
           }}
         >
-          <Alert variant={"success"}>{message}</Alert>
+          <Alert variant={message.includes("sucesso") ? "success" : "danger"}>
+            {message}
+          </Alert>
         </div>
       )}
     </div>

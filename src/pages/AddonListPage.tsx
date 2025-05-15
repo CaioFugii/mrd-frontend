@@ -4,6 +4,7 @@ import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { BsPencilSquare } from "react-icons/bs";
 import Table from "react-bootstrap/Table";
+import { formatToBRL } from "../utils/formatToBRL";
 
 interface Addon {
   id: string;
@@ -56,7 +57,7 @@ export default function AddonListPage() {
             <th>Descrição</th>
             <th>Preço</th>
             <th>Status</th>
-            <th>Ações</th>
+            {isSuperUser && <th>Ações</th>}
           </tr>
         </thead>
         <tbody>
@@ -64,11 +65,10 @@ export default function AddonListPage() {
             <tr key={addon.id}>
               <td>{addon.name} </td>
               <td>{addon.description}</td>
-              <td>{addon.price}</td>
+              <td>{formatToBRL(addon.price)}</td>
               <td>{addon.enabled ? "Ativo" : "Inativo"}</td>
-              <td>
-                {" "}
-                {isSuperUser && (
+              {isSuperUser && (
+                <td>
                   <>
                     <button
                       className="button-edit"
@@ -77,8 +77,8 @@ export default function AddonListPage() {
                       <BsPencilSquare />
                     </button>
                   </>
-                )}
-              </td>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

@@ -4,6 +4,7 @@ import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { BsPencilSquare } from "react-icons/bs";
 import Table from "react-bootstrap/Table";
+import { formatToBRL } from "../utils/formatToBRL";
 
 interface Product {
   id: string;
@@ -23,7 +24,7 @@ export default function ProductListPage() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const res = await api.get("/products");
+        const res = await api.get("/products?limit=100");
         setProducts(res.data.data);
       } catch (err) {
         console.error("Erro ao buscar produtos:", err);
@@ -57,7 +58,7 @@ export default function ProductListPage() {
             <th>Descrição</th>
             <th>Preço</th>
             <th>Status</th>
-            <th>Ações</th>
+            {isSuperUser && <th>Ações</th>}
           </tr>
         </thead>
         <tbody>
@@ -65,21 +66,18 @@ export default function ProductListPage() {
             <tr key={product.id}>
               <td>{product.name} </td>
               <td>{product.description}</td>
-              <td>{product.price}</td>
+              <td>{formatToBRL(product.price)}</td>
               <td>{product.enabled ? "Ativo" : "Inativo"}</td>
-              <td>
-                {" "}
-                {isSuperUser && (
-                  <>
-                    <button
-                      className="button-edit"
-                      onClick={() => navigate(`/products/${product.id}/edit`)}
-                    >
-                      <BsPencilSquare />
-                    </button>
-                  </>
-                )}
-              </td>
+              {isSuperUser && (
+                <td>
+                  <button
+                    className="button-edit"
+                    onClick={() => navigate(`/products/${product.id}/edit`)}
+                  >
+                    <BsPencilSquare />
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
