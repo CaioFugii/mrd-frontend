@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
+import Button from "react-bootstrap/Button";
+import { MdDeleteOutline } from "react-icons/md";
+import Form from "react-bootstrap/Form";
+import InputGroup from "react-bootstrap/InputGroup";
 
 interface ProductAddon {
   id: string;
@@ -73,33 +77,47 @@ export default function BudgetItemEditor({
     onChange({ quantity, addons: updated });
   }
 
-  if (loading) return <p>Carregando produto...</p>;
+  if (loading) return <div className="spinner"></div>;
 
   return (
-    <div style={{ border: "1px solid gray", margin: "8px", padding: "8px" }}>
-      <p>
-        <strong>{productName}</strong> - R$ {price}
-      </p>
+    <div>
+      <div
+        style={{
+          display: "flex",
+          alignContent: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <p>
+          <strong>{productName}</strong> - R$ {price}
+        </p>
+        <Button onClick={onRemove}>
+          <MdDeleteOutline />
+        </Button>
+      </div>
 
-      <h4>Adicionais</h4>
+      <p>Adicionais</p>
       {availableAddons.map((addon) => {
         const selected = addons.find((a) => a.id === addon.id);
         return (
           <div key={addon.id}>
-            <span>
-              {addon.name} (R$ {addon.price})
-            </span>
-            <input
-              type="number"
-              min={0}
-              value={selected?.quantity || 0}
-              onChange={(e) => updateAddon(addon.id, Number(e.target.value))}
-            />
+            <span></span>
+            <InputGroup size="sm" className="mb-3">
+              <InputGroup.Text id="inputGroup-sizing-sm">
+                {" "}
+                {addon.name} (R$ {addon.price})
+              </InputGroup.Text>
+              <Form.Control
+                aria-describedby="inputGroup-sizing-sm"
+                type="number"
+                min={0}
+                value={selected?.quantity || 0}
+                onChange={(e) => updateAddon(addon.id, Number(e.target.value))}
+              />
+            </InputGroup>
           </div>
         );
       })}
-
-      <button onClick={onRemove}>Remover Produto</button>
     </div>
   );
 }

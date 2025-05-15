@@ -1,45 +1,47 @@
-import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { RxExit } from "react-icons/rx";
+import Nav from "react-bootstrap/Nav";
+import Button from "react-bootstrap/Button";
 
 export default function Navbar() {
   const { logout, role } = useAuth();
   const isSuperUser = role === "SUPER_USER";
 
   return (
-    <nav className="nav-bar">
-      <Link className="link-navbar" to="/budgets">
-        Orçamentos
-      </Link>
-      <Link className="link-navbar" to="/budgets/new">
-        Novo Orçamento
-      </Link>
-      <Link className="link-navbar" to="/products">
-        Produtos
-      </Link>
-      <Link className="link-navbar" to="/addons">
-        Adicionais
-      </Link>
+    <Nav variant="underline" className="nav-bar">
+      <Nav.Item>
+        <Nav.Link href="/budgets">Orçamentos</Nav.Link>
+      </Nav.Item>
+      <Nav.Item>
+        <Nav.Link href="/budgets/new">Novo Orçamento</Nav.Link>
+      </Nav.Item>
+      <Nav.Item>
+        <Nav.Link href="/products">Produtos</Nav.Link>
+      </Nav.Item>
+      <Nav.Item>
+        <Nav.Link href="/addons">Adicionais</Nav.Link>
+      </Nav.Item>
 
       {isSuperUser && (
         <>
-          <Link className="link-navbar" to="/register">
-            Novo Vendedor
-          </Link>
-          <Link className="link-navbar" to="/products/new">
-            Novo Produto
-          </Link>
-          <Link className="link-navbar" to="/addons/new">
-            Novo Adicional
-          </Link>
+          <Nav.Item>
+            <Nav.Link href="/register">Novo Vendedor</Nav.Link>
+          </Nav.Item>
+
+          <Nav.Item>
+            <Nav.Link href="/products/new">Novo Produto</Nav.Link>
+          </Nav.Item>
+
+          <Nav.Item>
+            <Nav.Link href="/addons/new">Novo Adicional</Nav.Link>
+          </Nav.Item>
         </>
       )}
 
-      <Link className="link-navbar" to="/change-password">
-        Trocar Senha
-      </Link>
-
-      <button
+      <Nav.Item>
+        <Nav.Link href="/change-password">Trocar Senha</Nav.Link>
+      </Nav.Item>
+      <Button
         onClick={logout}
         style={{
           background: "none",
@@ -51,7 +53,7 @@ export default function Navbar() {
         }}
       >
         <RxExit />
-      </button>
-    </nav>
+      </Button>
+    </Nav>
   );
 }

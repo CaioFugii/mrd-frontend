@@ -51,7 +51,7 @@ export default function BudgetDetailPage() {
     fetchBudget();
   }, [id]);
 
-  if (loading) return <p>Carregando...</p>;
+  if (loading) return <div className="spinner"></div>;
   if (!budget) return <p>Orçamento não encontrado.</p>;
 
   function handleExportPDF() {

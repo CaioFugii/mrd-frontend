@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../services/api";
+import Button from "react-bootstrap/Button";
+import { IoReturnUpBackOutline } from "react-icons/io5";
+import Alert from "react-bootstrap/Alert";
+import Form from "react-bootstrap/Form";
 
 export default function AddonFormPage() {
   const { id } = useParams();
@@ -37,7 +41,7 @@ export default function AddonFormPage() {
 
     try {
       if (isEditing) {
-        await api.patch(`/addons/${id}`, payload);
+        await api.put(`/addons/${id}`, payload);
         setMessage("Adicional atualizado com sucesso!");
       } else {
         await api.post("/addons", payload);
@@ -53,43 +57,65 @@ export default function AddonFormPage() {
 
   return (
     <div>
-      <h1>{isEditing ? "Editar Adicional" : "Criar Adicional"}</h1>
-      <button onClick={() => navigate("/addons")}>← Voltar para lista</button>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-evenly",
+          margin: "20px 0px",
+        }}
+      >
+        <h2>{isEditing ? "Editar Adicional" : "Criar Adicional"}</h2>
+        <Button variant="primary" onClick={() => navigate("/addons")}>
+          <IoReturnUpBackOutline /> Voltar para lista
+        </Button>
+      </div>
+      <div className="container-align">
+        <Form onSubmit={handleSubmit}>
+          <Form.Group className="mb-3" controlId="name">
+            <Form.Label>Nome</Form.Label>
+            <Form.Control
+              type="text"
+              value={name}
+              placeholder="Nome do produto"
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </Form.Group>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Nome:</label>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
+          <Form.Group className="mb-3" controlId="description">
+            <Form.Label>Descrição</Form.Label>
+            <Form.Control
+              value={description}
+              type="text"
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3" controlId="price">
+            <Form.Label>Preço (R$)</Form.Label>
+            <Form.Control
+              value={price}
+              type="number"
+              step="0.01"
+              onChange={(e) => setPrice(Number(e.target.value))}
+              required
+            />
+          </Form.Group>
+          <Button type="submit">{isEditing ? "Atualizar" : "Cadastrar"}</Button>
+        </Form>
+      </div>
+
+      {message && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            margin: "20px 0px",
+          }}
+        >
+          <Alert variant={"success"}>{message}</Alert>
         </div>
-
-        <div>
-          <label>Preço (R$):</label>
-          <input
-            type="number"
-            step="0.01"
-            value={price}
-            onChange={(e) => setPrice(Number(e.target.value))}
-            required
-          />
-        </div>
-
-        <div>
-          <label>Descrição:</label>
-          <input
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
-        </div>
-
-        <button type="submit">Salvar</button>
-      </form>
-
-      {message && <p>{message}</p>}
+      )}
     </div>
   );
 }

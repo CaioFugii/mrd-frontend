@@ -1,5 +1,8 @@
 import { useState } from "react";
 import api from "../services/api";
+import Form from "react-bootstrap/Form";
+import Button from "react-bootstrap/Button";
+import Alert from "react-bootstrap/Alert";
 
 export default function RegisterSellerPage() {
   const [name, setName] = useState("");
@@ -30,9 +33,49 @@ export default function RegisterSellerPage() {
 
   return (
     <div>
-      <h1>Cadastrar Novo Vendedor</h1>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          margin: "20px 0px",
+        }}
+      >
+        <h2>Cadastro de vendedor</h2>
+      </div>
+      <div className="container-align">
+        <Form onSubmit={handleSubmit}>
+          <Form.Group className="mb-3" controlId="name">
+            <Form.Label>Nome</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Nome e Sobrenome"
+              onChange={(e) => setName(e.target.value)}
+            />
+          </Form.Group>
 
-      <form onSubmit={handleSubmit}>
+          <Form.Group className="mb-3" controlId="email">
+            <Form.Label>Email</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="name@example.com"
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3" controlId="email">
+            <Form.Label>Telefone</Form.Label>
+            <Form.Control
+              type="phone"
+              placeholder="(xx)xxxx-xxxx"
+              onChange={(e) => setPhone(e.target.value)}
+              required
+            />
+          </Form.Group>
+          <Button type="submit">Cadastrar</Button>
+        </Form>
+
+        {/* <form onSubmit={handleSubmit}>
         <div>
           <label>Nome:</label>
           <input
@@ -63,9 +106,19 @@ export default function RegisterSellerPage() {
         </div>
 
         <button type="submit">Cadastrar</button>
-      </form>
-
-      {message && <p>{message}</p>}
+      </form> */}
+      </div>
+      {message && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            margin: "20px 0px",
+          }}
+        >
+          <Alert variant={"success"}>{message}</Alert>
+        </div>
+      )}
     </div>
   );
 }

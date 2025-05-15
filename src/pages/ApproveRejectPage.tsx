@@ -58,7 +58,7 @@ export default function ApproveRejectPage() {
     }
   }
 
-  if (loading) return <p>Carregando orçamento...</p>;
+  if (loading) return <div className="spinner"></div>;
   if (!budget) return <p>Orçamento não encontrado.</p>;
 
   return (

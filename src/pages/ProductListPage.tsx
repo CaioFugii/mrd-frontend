@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { BsPencilSquare } from "react-icons/bs";
+import Table from "react-bootstrap/Table";
 
 interface Product {
   id: string;
@@ -34,17 +35,25 @@ export default function ProductListPage() {
     fetchProducts();
   }, []);
 
-  if (loading) return <p>Carregando...</p>;
+  if (loading) return <div className="spinner"></div>;
 
   return (
     <div className="table-container">
-      <h1 style={{ color: "#282f52", marginBottom: "2rem" }}>Produtos</h1>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-evenly",
+          margin: "20px 0px",
+        }}
+      >
+        <h2>Produtos</h2>
+        {products.length === 0 && <p>Nenhum produto encontrado.</p>}
+      </div>
 
-      {products.length === 0 && <p>Nenhum orçamento encontrado.</p>}
-      <table className="styled-table">
+      <Table className="styled-table">
         <thead>
           <tr>
-            <th>Produto</th>
+            <th>Nome</th>
             <th>Descrição</th>
             <th>Preço</th>
             <th>Status</th>
@@ -74,7 +83,7 @@ export default function ProductListPage() {
             </tr>
           ))}
         </tbody>
-      </table>
+      </Table>
     </div>
   );
 }

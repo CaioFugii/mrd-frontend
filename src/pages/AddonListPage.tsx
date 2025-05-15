@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { BsPencilSquare } from "react-icons/bs";
+import Table from "react-bootstrap/Table";
 
 interface Addon {
   id: string;
@@ -34,16 +35,24 @@ export default function AddonListPage() {
     fetchAddons();
   }, []);
 
-  if (loading) return <p>Carregando...</p>;
+  if (loading) return <div className="spinner"></div>;
 
   return (
     <div className="table-container">
-      <h1 style={{ color: "#282f52", marginBottom: "2rem" }}>Cadastrados</h1>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-evenly",
+          margin: "20px 0px",
+        }}
+      >
+        <h2>Adicionais</h2>
+      </div>
 
-      <table className="styled-table">
+      <Table className="styled-table">
         <thead>
           <tr>
-            <th>Produto</th>
+            <th>Nome</th>
             <th>Descrição</th>
             <th>Preço</th>
             <th>Status</th>
@@ -63,7 +72,7 @@ export default function AddonListPage() {
                   <>
                     <button
                       className="button-edit"
-                      onClick={() => navigate(`/products/${addon.id}/edit`)}
+                      onClick={() => navigate(`/addons/${addon.id}/edit`)}
                     >
                       <BsPencilSquare />
                     </button>
@@ -73,7 +82,7 @@ export default function AddonListPage() {
             </tr>
           ))}
         </tbody>
-      </table>
+      </Table>
     </div>
   );
 }
