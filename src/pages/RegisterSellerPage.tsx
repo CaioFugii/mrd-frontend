@@ -183,7 +183,7 @@ export default function RegisterSellerPage() {
 
             {editingSellerId && (
               <Button
-                variant="secondary"
+                id="btn-cancel"
                 onClick={() => {
                   setName("");
                   setEmail("");
@@ -242,7 +242,7 @@ export default function RegisterSellerPage() {
                     </Button>
                   ) : (
                     <Button
-                      variant="danger"
+                      id="btn-cancel"
                       onClick={() => handleDisable(seller.id)}
                     >
                       Desabilitar
@@ -273,10 +273,7 @@ export default function RegisterSellerPage() {
             Tem certeza de que deseja redefinir a senha deste vendedor?
           </Modal.Body>
           <Modal.Footer>
-            <Button
-              variant="secondary"
-              onClick={() => setShowConfirmModal(false)}
-            >
+            <Button id="btn-cancel" onClick={() => setShowConfirmModal(false)}>
               Cancelar
             </Button>
             <Button variant="danger" onClick={() => handleResetPassword()}>

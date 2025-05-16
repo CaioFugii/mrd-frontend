@@ -79,9 +79,28 @@ html {
   }
 }
 
+.scrollable-card-body {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+#btn-cancel {
+  background-color: var(--cor-primaria);
+}
+
+.pagination li {
+  --bs-pagination-color: var(--cor-primaria);
+  --bs-pagination-active-bg: var(--cor-primaria);
+  --bs-pagination-active-border-color: var(--cor-primaria);
+}
+
 .text-login {
   font-family: var(--fonte-principal);
   color: var(--cor-primaria);
+}
+
+.input-group-text {
+  border: none;
 }
 
 .container-img {
@@ -89,7 +108,7 @@ html {
   justify-content: center;
 }
 
-.container {
+.container-login {
   background-color: var(--cor-primaria);
   background: linear-gradient(
     to right,

@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
+import Button from "react-bootstrap/Button";
+import { IoReturnUpBackOutline } from "react-icons/io5";
+
+import Form from "react-bootstrap/Form";
+import Card from "react-bootstrap/Card";
+
+import { formatToBRL } from "../utils/formatToBRL";
 
 interface Budget {
   id: string;
@@ -8,6 +15,9 @@ interface Budget {
   total: number;
   discountPercent: number;
   createdAt: string;
+  seller: {
+    name: string;
+  };
 }
 
 export default function ApproveRejectPage() {
@@ -62,35 +72,59 @@ export default function ApproveRejectPage() {
   if (!budget) return <p>Orçamento não encontrado.</p>;
 
   return (
-    <div>
-      <h1>Aprovar/Rejeitar Orçamento</h1>
-      <button onClick={() => navigate("/budgets")}>← Voltar para lista</button>
-      <p>
-        <strong>Cliente:</strong> {budget.customerName}
-      </p>
-      <p>
-        <strong>Total:</strong> R$ {budget.total}
-      </p>
-      <p>
-        <strong>Desconto:</strong> {budget.discountPercent}%
-      </p>
-      <p>
-        <strong>Data:</strong> {new Date(budget.createdAt).toLocaleDateString()}
-      </p>
+    <div style={{ display: "block" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-evenly",
+          margin: "20px 0px",
+        }}
+      >
+        <h2>Aprovar Orçamentos</h2>
+        <Button variant="primary" onClick={() => navigate("/addons")}>
+          <IoReturnUpBackOutline /> Voltar para lista
+        </Button>
+      </div>
 
-      <button onClick={handleApprove}>Aprovar</button>
+      <div className="container-align">
+        <Card>
+          <Card.Header>Orçamento</Card.Header>
+          <Card.Body>
+            <Card.Text>
+              <p>
+                <strong>Cliente:</strong> {budget.customerName}
+              </p>
+              <p>
+                <strong>Total:</strong> {formatToBRL(budget.total)}
+              </p>
+              <p>
+                <strong>Desconto:</strong> {budget.discountPercent}%
+              </p>
+              <p>
+                <strong>Vendedor:</strong> {budget.seller.name}
+              </p>
+              <p>
+                <strong>Data:</strong>{" "}
+                {new Date(budget.createdAt).toLocaleDateString()}
+              </p>
+              <Button onClick={handleApprove}>Aprovar</Button>
+            </Card.Text>
+            <Form>
+              <Form.Group className="mb-3" controlId="name">
+                <Form.Label>Motivo da Rejeição:</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  rows={3}
+                  cols={40}
+                />
+              </Form.Group>
 
-      <div style={{ marginTop: "1rem" }}>
-        <label>Motivo da Rejeição:</label>
-        <br />
-        <textarea
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          rows={3}
-          cols={40}
-        />
-        <br />
-        <button onClick={handleReject}>Rejeitar</button>
+              <Button onClick={handleReject}>Rejeitar</Button>
+            </Form>
+          </Card.Body>
+        </Card>
       </div>
     </div>
   );

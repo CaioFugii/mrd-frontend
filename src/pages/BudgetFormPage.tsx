@@ -160,7 +160,7 @@ export default function BudgetFormPage() {
 
           <Card>
             <Card.Header>Produtos Disponíveis</Card.Header>
-            <Card.Body>
+            <Card.Body className="scrollable-card-body">
               <Card.Text>
                 {products.map((product) => (
                   <ListGroup key={product.id} as="ol">

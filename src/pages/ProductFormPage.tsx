@@ -6,6 +6,7 @@ import { IoReturnUpBackOutline } from "react-icons/io5";
 import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
+import Card from "react-bootstrap/Card";
 
 interface Addon {
   id: string;
@@ -29,7 +30,7 @@ export default function ProductFormPage() {
   useEffect(() => {
     async function fetchAddons() {
       try {
-        const res = await api.get("/addons");
+        const res = await api.get("/addons?limit=100");
         setAddons(res.data.data);
       } catch (err) {
         console.error("Erro ao buscar addons:", err);
@@ -134,28 +135,38 @@ export default function ProductFormPage() {
                 * Itens em vermelho se encontram desabilitados no momento.
               </small>
             )}
-            {addons.length &&
-              addons?.map((addon) => (
-                <label>
-                  <InputGroup key={addon.id}>
-                    <InputGroup.Checkbox
-                      checked={selectedAddonIds.includes(addon.id)}
-                      onChange={(e) => {
-                        const updated = e.target.checked
-                          ? [...selectedAddonIds, addon.id]
-                          : selectedAddonIds.filter((id) => id !== addon.id);
-                        setSelectedAddonIds(updated);
-                      }}
-                    />
-                    <InputGroup.Text
-                      id="inputGroup-sizing-sm"
-                      style={{ color: addon.enabled ? "black" : "red" }}
-                    >
-                      {addon.name}
-                    </InputGroup.Text>
-                  </InputGroup>
-                </label>
-              ))}
+
+            <Card>
+              <Card.Body className="scrollable-card-body">
+                <Card.Text>
+                  {addons.length &&
+                    addons?.map((addon) => (
+                      <InputGroup
+                        key={addon.id}
+                        className="scrollable-card-body"
+                      >
+                        <InputGroup.Checkbox
+                          checked={selectedAddonIds.includes(addon.id)}
+                          onChange={(e) => {
+                            const updated = e.target.checked
+                              ? [...selectedAddonIds, addon.id]
+                              : selectedAddonIds.filter(
+                                  (id) => id !== addon.id
+                                );
+                            setSelectedAddonIds(updated);
+                          }}
+                        />
+                        <InputGroup.Text
+                          id="inputGroup-sizing-sm"
+                          style={{ color: addon.enabled ? "black" : "red" }}
+                        >
+                          {addon.name}
+                        </InputGroup.Text>
+                      </InputGroup>
+                    ))}
+                </Card.Text>
+              </Card.Body>
+            </Card>
           </div>
           <Button type="submit">{isEditing ? "Atualizar" : "Cadastrar"}</Button>
         </Form>
