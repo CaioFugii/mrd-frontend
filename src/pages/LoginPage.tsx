@@ -65,7 +65,10 @@ export default function LoginPage() {
             />
           </div>
 
-          <div className="form-input-container">
+          <div
+            className="form-input-container"
+            style={{ position: "relative" }}
+          >
             <label className="text-login">Senha:</label>
             <input
               type={visible ? "text" : "password"}
@@ -78,9 +81,9 @@ export default function LoginPage() {
               onClick={() => setVisible((v) => !v)}
               style={{
                 position: "absolute",
-                top: "56.7%",
-                right: "48.75rem",
-                transform: "translateY(37%)",
+                top: "65%",
+                right: "10px",
+                transform: "translateY(-50%)",
                 cursor: "pointer",
                 fontSize: "1rem",
                 color: "#5791b2",

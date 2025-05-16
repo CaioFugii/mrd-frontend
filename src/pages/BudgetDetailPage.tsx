@@ -4,6 +4,9 @@ import jsPDF from "jspdf";
 import api from "../services/api";
 import autoTable from "jspdf-autotable";
 import { formatToBRL } from "../utils/formatToBRL";
+import Button from "react-bootstrap/Button";
+import { IoReturnUpBackOutline } from "react-icons/io5";
+import Card from "react-bootstrap/Card";
 
 interface Addon {
   addonNameSnapshot: string;
@@ -116,54 +119,91 @@ export default function BudgetDetailPage() {
 
   return (
     <div>
-      <h1>Detalhes do Orçamento</h1>
-      <button onClick={() => navigate("/budgets")}>← Voltar para lista</button>
-
-      {budget.approved && (
-        <>
-          <button onClick={handleExportPDF}>📄 Exportar PDF</button>
-        </>
-      )}
-
-      <p>
-        <strong>Cliente:</strong> {budget.customerName}
-      </p>
-      <p>
-        <strong>Email:</strong> {budget.customerEmail}
-      </p>
-      <p>
-        <strong>Telefone:</strong> {budget.customerPhone}
-      </p>
-      <p>
-        <strong>Data:</strong> {new Date(budget.createdAt).toLocaleDateString()}
-      </p>
-      <p>
-        <strong>Desconto:</strong> {budget.discountPercent}%
-      </p>
-      <p>
-        <strong>Total:</strong> {formatToBRL(budget.total)}
-      </p>
-
-      <h2>Itens</h2>
-      {budget.items.map((item, index) => (
-        <div key={index}>
-          <p>
-            {item.productNameSnapshot} -{" "}
-            {formatToBRL(item.productPriceSnapshot)} (Total:
-            {formatToBRL(item.totalPrice)})
-          </p>
-          {item.addons?.length > 0 && (
-            <ul>
-              {item.addons.map((addon, i) => (
-                <li key={i}>
-                  {addon.quantity} x {addon.addonNameSnapshot} -{" "}
-                  {formatToBRL(addon.totalPrice)}
-                </li>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-evenly",
+          margin: "20px 0px",
+        }}
+      >
+        <h2>Detalhes do Orçamento</h2>
+        <Button variant="primary" onClick={() => navigate("/budgets")}>
+          <IoReturnUpBackOutline /> Voltar para lista
+        </Button>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          margin: "20px 0px",
+        }}
+      ></div>
+      <div className="container-align">
+        <Card>
+          <Card.Header>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              {" "}
+              Orçamento{" "}
+              {budget.approved && (
+                <Button variant="primary" onClick={handleExportPDF}>
+                  📄 Exportar PDF
+                </Button>
+              )}
+            </div>
+          </Card.Header>
+          <Card.Body>
+            <Card.Text>
+              <p>
+                <strong>Cliente:</strong> {budget.customerName}
+              </p>
+              <p>
+                <strong>Email:</strong> {budget.customerEmail}
+              </p>
+              <p>
+                <strong>Telefone:</strong> {budget.customerPhone}
+              </p>
+              <p>
+                <strong>Data:</strong>{" "}
+                {new Date(budget.createdAt).toLocaleDateString()}
+              </p>
+              <p>
+                <strong>Desconto:</strong> {budget.discountPercent}%
+              </p>
+              <p>
+                <strong>Total:</strong> {formatToBRL(budget.total)}
+              </p>
+              <p>
+                <strong>Itens</strong>
+              </p>
+              {budget.items.map((item, index) => (
+                <div key={index}>
+                  <p>
+                    {item.productNameSnapshot} -{" "}
+                    {formatToBRL(item.productPriceSnapshot)} (Total:
+                    {formatToBRL(item.totalPrice)})
+                  </p>
+                  {item.addons?.length > 0 && (
+                    <ul>
+                      {item.addons.map((addon, i) => (
+                        <li key={i}>
+                          {addon.quantity} x {addon.addonNameSnapshot} -{" "}
+                          {formatToBRL(addon.totalPrice)}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               ))}
-            </ul>
-          )}
-        </div>
-      ))}
+            </Card.Text>
+          </Card.Body>
+        </Card>
+      </div>
     </div>
   );
 }

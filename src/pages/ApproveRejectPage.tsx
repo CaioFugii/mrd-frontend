@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import Button from "react-bootstrap/Button";
 import { IoReturnUpBackOutline } from "react-icons/io5";
-
+import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
 import Card from "react-bootstrap/Card";
 
@@ -25,6 +25,7 @@ export default function ApproveRejectPage() {
   const navigate = useNavigate();
   const [budget, setBudget] = useState<Budget | null>(null);
   const [reason, setReason] = useState("");
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,6 +35,7 @@ export default function ApproveRejectPage() {
         setBudget(res.data);
       } catch (err) {
         console.error("Erro ao buscar orçamento:", err);
+        setMessage("Erro ao buscar orçamento");
       } finally {
         setLoading(false);
       }
@@ -45,26 +47,27 @@ export default function ApproveRejectPage() {
   async function handleApprove() {
     try {
       await api.patch(`/budgets/${id}/approve`);
-      alert("Orçamento aprovado com sucesso!");
+      setMessage("Orçamento aprovado com sucesso!");
       navigate("/budgets");
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      alert("Erro ao aprovar orçamento.");
+      setMessage("Erro ao aprovar orçamento.");
     }
   }
 
   async function handleReject() {
     try {
       if (!reason.trim()) {
-        alert("Informe o motivo da rejeição.");
+        setMessage("Informe o motivo da rejeição.");
         return;
       }
       await api.patch(`/budgets/${id}/reject`, { reason });
-      alert("Orçamento rejeitado com sucesso!");
-      navigate("/budgets");
+      setMessage("Orçamento rejeitado com sucesso!");
+
+      setTimeout(() => navigate("/budgets"), 1000);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      alert("Erro ao rejeitar orçamento.");
+      setMessage("Erro ao rejeitar orçamento.");
     }
   }
 
@@ -81,7 +84,7 @@ export default function ApproveRejectPage() {
         }}
       >
         <h2>Aprovar Orçamentos</h2>
-        <Button variant="primary" onClick={() => navigate("/addons")}>
+        <Button variant="primary" onClick={() => navigate("/budgets")}>
           <IoReturnUpBackOutline /> Voltar para lista
         </Button>
       </div>
@@ -126,6 +129,19 @@ export default function ApproveRejectPage() {
           </Card.Body>
         </Card>
       </div>
+      {message && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            margin: "20px 0px",
+          }}
+        >
+          <Alert variant={message.includes("sucesso") ? "success" : "danger"}>
+            {message}
+          </Alert>
+        </div>
+      )}
     </div>
   );
 }
