@@ -175,7 +175,7 @@ export default function BudgetListPage() {
         <Form.Group controlId="filterPending">
           <Form.Check
             type="checkbox"
-            label="Apenas pendentes de aprovação"
+            label="Pendentes de aprovação"
             checked={onlyPendingApproval}
             onChange={(e) => setOnlyPendingApproval(e.target.checked)}
           />

@@ -83,6 +83,17 @@ export default function AddonListPage() {
           ))}
         </tbody>
       </Table>
+      {!loading && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            width: "100%",
+          }}
+        >
+          {addons.length === 0 && <p>Nenhum produto adicional encontrado.</p>}
+        </div>
+      )}
     </div>
   );
 }

@@ -48,7 +48,6 @@ export default function ProductListPage() {
         }}
       >
         <h2>Produtos</h2>
-        {products.length === 0 && <p>Nenhum produto encontrado.</p>}
       </div>
 
       <Table className="styled-table">
@@ -82,6 +81,17 @@ export default function ProductListPage() {
           ))}
         </tbody>
       </Table>
+      {!loading && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            width: "100%",
+          }}
+        >
+          {products.length === 0 && <p>Nenhum produto encontrado.</p>}
+        </div>
+      )}
     </div>
   );
 }
