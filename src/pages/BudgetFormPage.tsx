@@ -50,7 +50,7 @@ export default function BudgetFormPage() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const res = await api.get("/products?limit=100");
+        const res = await api.get("/products");
         setProducts(res.data.data);
       } catch (error) {
         console.error("Erro ao buscar produtos:", error);
@@ -71,7 +71,7 @@ export default function BudgetFormPage() {
     try {
       const payload = {
         customerName,
-        customerEmail,
+        customerEmail: customerEmail ? customerEmail : null,
         customerPhone,
         discountPercent,
         items: items.map((item) => ({
@@ -117,6 +117,7 @@ export default function BudgetFormPage() {
             <Form.Control
               type="text"
               value={customerName}
+              required={true}
               placeholder="Nome e sobrenome"
               onChange={(e) => setCustomerName(e.target.value)}
             />
@@ -136,6 +137,7 @@ export default function BudgetFormPage() {
               type="phone"
               value={customerPhone}
               placeholder="(xx)xxxx-xxxx"
+              required={true}
               maxLength={15}
               onChange={(e) => setCustomerPhone(formatPhone(e.target.value))}
             />

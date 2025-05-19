@@ -5,11 +5,12 @@ import { useAuth } from "../context/AuthContext";
 import Table from "react-bootstrap/Table";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import Pagination from "react-bootstrap/Pagination";
 import { formatToBRL } from "../utils/formatToBRL";
+import PaginationComponent from "../components/Pagintation";
 
 interface Budget {
   id: string;
+  sequentialNumber: number;
   customerName: string;
   customerEmail: string;
   customerPhone: string;
@@ -28,20 +29,19 @@ export default function BudgetListPage() {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [loading, setLoading] = useState(true);
   const [onlyPendingApproval, setOnlyPendingApproval] = useState(false);
-  const [customerName, setCustomerName] = useState("");
-  const [debouncedCustomerName, setDebouncedCustomerName] =
-    useState(customerName);
+  const [filter, setFilter] = useState("");
+  const [debouncedFilter, setDebouncedFilter] = useState(filter);
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      setDebouncedCustomerName(customerName);
+      setDebouncedFilter(filter);
     }, 1000); // espera 2sec após o último caractere
 
     return () => clearTimeout(timeout); // limpa se digitar novamente antes do tempo
-  }, [customerName]);
+  }, [filter]);
 
   useEffect(() => {
     async function fetchBudgets() {
@@ -50,13 +50,12 @@ export default function BudgetListPage() {
         const response = await api.get("/budgets", {
           params: {
             onlyPendingApproval: onlyPendingApproval || undefined,
-            customerName: debouncedCustomerName.trim() || undefined,
+            search: debouncedFilter.trim() || undefined,
             page,
             limit,
           },
         });
         setBudgets(response.data.data);
-
         setTotal(response.data.total);
       } catch (error) {
         console.error("Erro ao buscar orçamentos:", error);
@@ -66,80 +65,7 @@ export default function BudgetListPage() {
     }
 
     fetchBudgets();
-  }, [onlyPendingApproval, debouncedCustomerName, page, limit]);
-
-  const renderPagination = () => {
-    const totalPages = Math.ceil(total / limit);
-
-    if (totalPages <= 1) return null;
-
-    const pages = [];
-    const maxVisible = 5;
-    const half = Math.floor(maxVisible / 2);
-    let start = Math.max(1, page - half);
-    let end = Math.min(totalPages, page + half);
-
-    if (end - start + 1 < maxVisible) {
-      if (start === 1) {
-        end = Math.min(totalPages, start + maxVisible - 1);
-      } else if (end === totalPages) {
-        start = Math.max(1, end - maxVisible + 1);
-      }
-    }
-
-    // Botão anterior
-    pages.push(
-      <Pagination.Prev
-        key="prev"
-        onClick={() => setPage((p) => p - 1)}
-        disabled={page === 1}
-      />
-    );
-
-    // Primeira página + ellipsis
-    if (start > 1) {
-      pages.push(
-        <Pagination.Item key={1} onClick={() => setPage(1)}>
-          1
-        </Pagination.Item>
-      );
-      if (start > 2)
-        pages.push(<Pagination.Ellipsis key="start-ellipsis" disabled />);
-    }
-
-    // Números centrais
-    for (let i = start; i <= end; i++) {
-      pages.push(
-        <Pagination.Item key={i} active={i === page} onClick={() => setPage(i)}>
-          {i}
-        </Pagination.Item>
-      );
-    }
-
-    // Última página + ellipsis
-    if (end < totalPages) {
-      if (end < totalPages - 1)
-        pages.push(<Pagination.Ellipsis key="end-ellipsis" disabled />);
-      pages.push(
-        <Pagination.Item key={totalPages} onClick={() => setPage(totalPages)}>
-          {totalPages}
-        </Pagination.Item>
-      );
-    }
-
-    // Botão próximo
-    pages.push(
-      <Pagination.Next
-        key="next"
-        onClick={() => setPage((p) => p + 1)}
-        disabled={page === totalPages}
-      />
-    );
-
-    return (
-      <Pagination className="justify-content-center mt-4">{pages}</Pagination>
-    );
-  };
+  }, [onlyPendingApproval, debouncedFilter, page, limit]);
 
   const getBudgetStatus = (budget: Budget) => {
     if (budget.approved) return "Aprovado";
@@ -162,13 +88,13 @@ export default function BudgetListPage() {
       </div>
 
       <div className="filters d-flex gap-3 align-items-end mb-3">
-        <Form.Group controlId="filterName">
-          <Form.Label>Filtrar por nome</Form.Label>
+        <Form.Group controlId="filter">
+          <Form.Label>Filtro:</Form.Label>
           <Form.Control
             type="text"
-            value={customerName}
-            placeholder="Nome do cliente"
-            onChange={(e) => setCustomerName(e.target.value)}
+            value={filter}
+            placeholder="Nome do cliente / Nr. Orçamento"
+            onChange={(e) => setFilter(e.target.value)}
           />
         </Form.Group>
 
@@ -196,6 +122,7 @@ export default function BudgetListPage() {
           <Table className="styled-table">
             <thead>
               <tr>
+                <th>Nr. Orçamento</th>
                 <th>Nome</th>
                 <th>Email</th>
                 <th>Telefone</th>
@@ -209,6 +136,7 @@ export default function BudgetListPage() {
             <tbody>
               {budgets.map((budget) => (
                 <tr key={budget.id}>
+                  <td>{budget.sequentialNumber}</td>
                   <td>{budget.customerName}</td>
                   <td>{budget.customerEmail}</td>
                   <td>{budget.customerPhone}</td>
@@ -262,7 +190,12 @@ export default function BudgetListPage() {
       )}
 
       <div style={{ display: "flex", justifyContent: "end" }}>
-        {renderPagination()}
+        <PaginationComponent
+          limit={limit}
+          page={page}
+          setPage={setPage}
+          total={total}
+        />
       </div>
     </div>
   );

@@ -24,6 +24,7 @@ interface Item {
 
 interface Budget {
   id: string;
+  sequentialNumber: number;
   customerName: string;
   customerEmail: string;
   customerPhone: string;
@@ -159,6 +160,9 @@ export default function BudgetDetailPage() {
           </Card.Header>
           <Card.Body>
             <Card.Text>
+              <p>
+                <strong>Nr. Orçamento:</strong> {budget.sequentialNumber}
+              </p>
               <p>
                 <strong>Cliente:</strong> {budget.customerName}
               </p>
