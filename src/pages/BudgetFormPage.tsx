@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import api from "../services/api";
 import BudgetItemEditor from "../components/BudgetItemEditor";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Form from "react-bootstrap/Form";
 import Card from "react-bootstrap/Card";
 import Alert from "react-bootstrap/Alert";
@@ -38,6 +39,8 @@ interface SelectedItem {
 
 export default function BudgetFormPage() {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditing = !!id;
   const [products, setProducts] = useState<Product[]>([]);
   const [items, setItems] = useState<SelectedItem[]>([]);
   const [message, setMessage] = useState("");
@@ -46,6 +49,7 @@ export default function BudgetFormPage() {
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [discountPercent, setDiscountPercent] = useState(0);
+  const [issueInvoice, setIssueInvoice] = useState(true);
 
   useEffect(() => {
     async function fetchProducts() {
@@ -58,8 +62,38 @@ export default function BudgetFormPage() {
       }
     }
 
+    async function fetchBudgetToEdit() {
+      if (!id) return;
+      try {
+        const res = await api.get(`/budgets/${id}`);
+        const b = res.data;
+
+        console.log(b.items);
+        setCustomerName(b.customerName);
+        setCustomerEmail(b.customerEmail || "");
+        setCustomerPhone(b.customerPhone);
+        setDiscountPercent(b.discountPercent || 0);
+        setIssueInvoice(b.issueInvoice);
+        setItems(
+          b.items.map((item: any) => ({
+            productId: item.productId,
+            addons: item.addons.map((addon: any) => ({
+              id: addon.addonId,
+              quantity: addon.quantity,
+            })),
+          }))
+        );
+      } catch (error) {
+        console.error("Erro ao carregar orçamento:", error);
+        setMessage("Erro ao carregar orçamento.");
+      }
+    }
+
     fetchProducts();
-  }, []);
+    if (isEditing) {
+      fetchBudgetToEdit();
+    }
+  }, [id, isEditing]);
 
   function addProduct(productId: string) {
     if (items.find((item) => item.productId === productId)) return;
@@ -71,9 +105,10 @@ export default function BudgetFormPage() {
     try {
       const payload = {
         customerName,
-        customerEmail: customerEmail ? customerEmail : null,
+        customerEmail: customerEmail || null,
         customerPhone,
         discountPercent,
+        issueInvoice,
         items: items.map((item) => ({
           productId: item.productId,
           addons: item.addons.map((addon) => ({
@@ -83,8 +118,13 @@ export default function BudgetFormPage() {
         })),
       };
 
-      await api.post("/budgets", payload);
-      setMessage("Orçamento criado com sucesso!");
+      if (isEditing) {
+        await api.put(`/budgets/${id}`, payload);
+        setMessage("Orçamento atualizado com sucesso!");
+      } else {
+        await api.post("/budgets", payload);
+        setMessage("Orçamento criado com sucesso!");
+      }
       setCustomerName("");
       setCustomerEmail("");
       setCustomerPhone("");
@@ -105,7 +145,7 @@ export default function BudgetFormPage() {
           margin: "20px 0px",
         }}
       >
-        <h2>Orçamento</h2>
+        <h2>{isEditing ? "Editar Orçamento" : "Novo Orçamento"}</h2>
         <Button variant="primary" onClick={() => navigate("/budgets")}>
           <IoReturnUpBackOutline /> Voltar para lista
         </Button>
@@ -157,6 +197,15 @@ export default function BudgetFormPage() {
                   setDiscountPercent(0);
                 }
               }}
+            />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="enableFeature">
+            <Form.Check
+              id="custom-switch"
+              type="switch"
+              label="Com emissão de Nota Fiscal"
+              checked={issueInvoice}
+              onChange={(e) => setIssueInvoice(e.target.checked)}
             />
           </Form.Group>
 
@@ -213,7 +262,9 @@ export default function BudgetFormPage() {
               </Card.Text>
             </Card.Body>
           </Card>
-          <Button onClick={handleSubmit}>Salvar Orçamento</Button>
+          <Button onClick={handleSubmit}>
+            {isEditing ? "Atualizar Orçamento" : "Salvar Orçamento"}
+          </Button>
         </Form>
       </div>
       {message && (

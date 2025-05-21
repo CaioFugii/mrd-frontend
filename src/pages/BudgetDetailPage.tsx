@@ -1,12 +1,11 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import jsPDF from "jspdf";
 import api from "../services/api";
-import autoTable from "jspdf-autotable";
 import { formatToBRL } from "../utils/formatToBRL";
 import Button from "react-bootstrap/Button";
 import { IoReturnUpBackOutline } from "react-icons/io5";
 import Card from "react-bootstrap/Card";
+import { handleExportPDF } from "../services/build-pdf";
 
 interface Addon {
   addonNameSnapshot: string;
@@ -30,8 +29,10 @@ interface Budget {
   customerPhone: string;
   discountPercent: number;
   total: number;
+  issueInvoice: boolean;
   approved: boolean;
   createdAt: string;
+  seller: { name: string };
   items: Item[];
 }
 
@@ -58,65 +59,6 @@ export default function BudgetDetailPage() {
 
   if (loading) return <div className="spinner"></div>;
   if (!budget) return <p>Orçamento não encontrado.</p>;
-
-  function handleExportPDF() {
-    if (!budget) return;
-
-    const doc = new jsPDF();
-    let y = 10;
-
-    doc.setFontSize(16);
-    doc.text("Orçamento", 10, y);
-    y += 10;
-
-    doc.setFontSize(12);
-    doc.text(`Cliente: ${budget.customerName}`, 10, y);
-    y += 6;
-    doc.text(`Email: ${budget.customerEmail}`, 10, y);
-    y += 6;
-    doc.text(`Telefone: ${budget.customerPhone}`, 10, y);
-    y += 6;
-    doc.text(`Data: ${new Date(budget.createdAt).toLocaleDateString()}`, 10, y);
-    y += 6;
-    doc.text(`Desconto: ${budget.discountPercent}%`, 10, y);
-    y += 6;
-    doc.text(`Total: ${formatToBRL(budget.total)}`, 10, y);
-    y += 10;
-
-    const rows: string[][] = [];
-
-    budget.items.forEach((item, index) => {
-      rows.push([
-        `${index + 1}. ${item.productNameSnapshot}`,
-        `${formatToBRL(item.productPriceSnapshot)}`,
-        `${formatToBRL(item.totalPrice)}`,
-      ]);
-
-      item.addons?.forEach((addon) => {
-        rows.push([
-          `     ${addon.quantity}x ${addon.addonNameSnapshot}`,
-          `${formatToBRL(addon.addonPriceSnapshot)}`,
-          `${formatToBRL(addon.totalPrice)}`,
-        ]);
-      });
-    });
-
-    autoTable(doc, {
-      head: [["Produto", "Unitário", "Total"]],
-      body: rows,
-      startY: y,
-      styles: {
-        fontSize: 10,
-      },
-      headStyles: {
-        fillColor: [40, 47, 82], // #282f52
-        textColor: 255,
-      },
-      alternateRowStyles: { fillColor: [245, 245, 245] },
-    });
-
-    doc.save(`orcamento-${budget.customerName}.pdf`);
-  }
 
   return (
     <div>
@@ -152,7 +94,10 @@ export default function BudgetDetailPage() {
               {" "}
               Orçamento{" "}
               {budget.approved && (
-                <Button variant="primary" onClick={handleExportPDF}>
+                <Button
+                  variant="primary"
+                  onClick={() => handleExportPDF(budget)}
+                >
                   📄 Exportar PDF
                 </Button>
               )}
@@ -178,6 +123,11 @@ export default function BudgetDetailPage() {
               </p>
               <p>
                 <strong>Desconto:</strong> {budget.discountPercent}%
+              </p>
+
+              <p>
+                <strong>Com Emissão de Nota:</strong>{" "}
+                {budget.issueInvoice ? "SIM" : "NÃO"}
               </p>
               <p>
                 <strong>Total:</strong> {formatToBRL(budget.total)}

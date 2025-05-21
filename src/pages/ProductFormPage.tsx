@@ -30,7 +30,7 @@ export default function ProductFormPage() {
   useEffect(() => {
     async function fetchAddons() {
       try {
-        const res = await api.get("/addons?limit=100");
+        const res = await api.get("/addons");
         setAddons(res.data.data);
       } catch (err) {
         console.error("Erro ao buscar addons:", err);

@@ -7,6 +7,7 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { formatToBRL } from "../utils/formatToBRL";
 import PaginationComponent from "../components/Pagintation";
+// import { BsPencilSquare } from "react-icons/bs";
 
 interface Budget {
   id: string;
@@ -157,6 +158,12 @@ export default function BudgetListPage() {
                     <Button onClick={() => navigate(`/budgets/${budget.id}`)}>
                       Visualizar
                     </Button>
+                    {/* <button
+                      className="button-edit"
+                      onClick={() => navigate(`/budgets/${budget.id}/edit`)}
+                    >
+                      <BsPencilSquare />
+                    </button> */}
                     {budget.requiresApproval &&
                       isSuperUser &&
                       !budget.approved &&

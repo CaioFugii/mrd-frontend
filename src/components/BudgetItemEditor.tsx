@@ -33,6 +33,7 @@ export default function BudgetItemEditor({
   onError,
 }: Props) {
   const [productName, setProductName] = useState("");
+  const [addonSearch, setAddonSearch] = useState("");
   const [price, setPrice] = useState(0);
   const [availableAddons, setAvailableAddons] = useState<ProductAddon[]>([]);
   const [loading, setLoading] = useState(true);
@@ -101,35 +102,45 @@ export default function BudgetItemEditor({
       </div>
 
       <p>Adicionais</p>
-      {availableAddons.map((addon) => {
-        const selected = addons.find((a) => a.id === addon.id);
-        return (
-          <div key={addon.id}>
-            <span></span>
-            <InputGroup size="sm" className="mb-3">
-              <InputGroup.Text id="inputGroup-sizing-sm">
-                {" "}
-                {addon.name} ({formatToBRL(addon.price)})
-              </InputGroup.Text>
-              <Form.Control
-                aria-describedby="inputGroup-sizing-sm"
-                inputMode="numeric"
-                type="text"
-                value={selected?.quantity || 0}
-                onChange={(e) => {
-                  const onlyDigits = e.target.value.replace(/\D/g, "");
-                  const value = Number(onlyDigits);
-                  if (value >= 0) {
-                    updateAddon(addon.id, value);
-                  } else if (onlyDigits === "") {
-                    updateAddon(addon.id, 0);
-                  }
-                }}
-              />
-            </InputGroup>
-          </div>
-        );
-      })}
+      <Form.Control
+        size="sm"
+        type="text"
+        placeholder="Buscar adicional..."
+        value={addonSearch}
+        onChange={(e) => setAddonSearch(e.target.value)}
+        className="mb-3"
+      />
+      {availableAddons
+        .filter((addon) =>
+          addon.name.toLowerCase().includes(addonSearch.toLowerCase())
+        )
+        .map((addon) => {
+          const selected = addons.find((a) => a.id === addon.id);
+          return (
+            <div key={addon.id}>
+              <InputGroup size="sm" className="mb-3">
+                <InputGroup.Text id="inputGroup-sizing-sm">
+                  {addon.name} ({formatToBRL(addon.price)})
+                </InputGroup.Text>
+                <Form.Control
+                  aria-describedby="inputGroup-sizing-sm"
+                  inputMode="numeric"
+                  type="text"
+                  value={selected?.quantity || 0}
+                  onChange={(e) => {
+                    const onlyDigits = e.target.value.replace(/\D/g, "");
+                    const value = Number(onlyDigits);
+                    if (value >= 0) {
+                      updateAddon(addon.id, value);
+                    } else if (onlyDigits === "") {
+                      updateAddon(addon.id, 0);
+                    }
+                  }}
+                />
+              </InputGroup>
+            </div>
+          );
+        })}
     </div>
   );
 }

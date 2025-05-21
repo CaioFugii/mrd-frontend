@@ -35,6 +35,7 @@ export default function AppRoutes() {
         <Route path="/addons" element={<AddonListPage />} />
         <Route path="/budgets" element={<BudgetListPage />} />
         <Route path="/budgets/new" element={<BudgetFormPage />} />
+        <Route path="/budgets/:id/edit" element={<BudgetFormPage />} />
         <Route path="/budgets/:id" element={<BudgetDetailPage />} />
       </Route>
 
