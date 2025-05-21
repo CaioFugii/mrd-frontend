@@ -33,6 +33,7 @@ export default function BudgetListPage() {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [loading, setLoading] = useState(true);
   const [onlyPendingApproval, setOnlyPendingApproval] = useState(false);
+  const [onlySold, setOnlySold] = useState(false);
   const [filter, setFilter] = useState("");
   const [budgetSellId, setBudgetSellId] = useState("");
   const [debouncedFilter, setDebouncedFilter] = useState(filter);
@@ -55,6 +56,7 @@ export default function BudgetListPage() {
       const response = await api.get("/budgets", {
         params: {
           onlyPendingApproval: onlyPendingApproval || undefined,
+          onlySold: onlySold || undefined,
           search: debouncedFilter.trim() || undefined,
           page,
           limit,
@@ -72,7 +74,7 @@ export default function BudgetListPage() {
   useEffect(() => {
     fetchBudgets();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onlyPendingApproval, debouncedFilter, page, limit]);
+  }, [onlyPendingApproval, onlySold, debouncedFilter, page, limit]);
 
   async function handleSellBudget() {
     if (!budgetSellId) return;
@@ -118,6 +120,14 @@ export default function BudgetListPage() {
             onChange={(e) => setOnlyPendingApproval(e.target.checked)}
           />
         </Form.Group>
+        <Form.Group controlId="filterSold">
+          <Form.Check
+            type="checkbox"
+            label="Vendidos"
+            checked={onlySold}
+            onChange={(e) => setOnlySold(e.target.checked)}
+          />
+        </Form.Group>
       </div>
       <div
         style={{
@@ -154,7 +164,6 @@ export default function BudgetListPage() {
                   <td>{budget.customerPhone}</td>
                   <td>{formatToBRL(budget.total)}</td>
                   <td>
-                    Criado em:{" "}
                     {new Date(budget.createdAt).toLocaleDateString("pt-BR", {
                       year: "numeric",
                       month: "numeric",

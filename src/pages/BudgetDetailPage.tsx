@@ -130,7 +130,7 @@ export default function BudgetDetailPage() {
                 {budget.issueInvoice ? "SIM" : "NÃO"}
               </p>
               <p>
-                <strong>Total:</strong> {formatToBRL(budget.total)}
+                <strong>Total: </strong> {formatToBRL(budget.total)}
               </p>
               <p>
                 <strong>Itens</strong>
@@ -139,7 +139,7 @@ export default function BudgetDetailPage() {
                 <div key={index}>
                   <p>
                     {item.productNameSnapshot} -{" "}
-                    {formatToBRL(item.productPriceSnapshot)} (Total:
+                    {formatToBRL(item.productPriceSnapshot)} (Total:{" "}
                     {formatToBRL(item.totalPrice)})
                   </p>
                   {item.addons?.length > 0 && (
