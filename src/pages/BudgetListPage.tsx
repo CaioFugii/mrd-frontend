@@ -7,12 +7,15 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { formatToBRL } from "../utils/formatToBRL";
 import PaginationComponent from "../components/Pagintation";
+import { FiDollarSign } from "react-icons/fi";
+import Modal from "react-bootstrap/Modal";
 // import { BsPencilSquare } from "react-icons/bs";
 
 interface Budget {
   id: string;
   sequentialNumber: number;
   customerName: string;
+  status: string;
   customerEmail: string;
   customerPhone: string;
   seller: { name: string };
@@ -31,7 +34,9 @@ export default function BudgetListPage() {
   const [loading, setLoading] = useState(true);
   const [onlyPendingApproval, setOnlyPendingApproval] = useState(false);
   const [filter, setFilter] = useState("");
+  const [budgetSellId, setBudgetSellId] = useState("");
   const [debouncedFilter, setDebouncedFilter] = useState(filter);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [total, setTotal] = useState(0);
@@ -44,37 +49,43 @@ export default function BudgetListPage() {
     return () => clearTimeout(timeout); // limpa se digitar novamente antes do tempo
   }, [filter]);
 
-  useEffect(() => {
-    async function fetchBudgets() {
-      setLoading(true);
-      try {
-        const response = await api.get("/budgets", {
-          params: {
-            onlyPendingApproval: onlyPendingApproval || undefined,
-            search: debouncedFilter.trim() || undefined,
-            page,
-            limit,
-          },
-        });
-        setBudgets(response.data.data);
-        setTotal(response.data.total);
-      } catch (error) {
-        console.error("Erro ao buscar orçamentos:", error);
-      } finally {
-        setLoading(false);
-      }
+  async function fetchBudgets() {
+    setLoading(true);
+    try {
+      const response = await api.get("/budgets", {
+        params: {
+          onlyPendingApproval: onlyPendingApproval || undefined,
+          search: debouncedFilter.trim() || undefined,
+          page,
+          limit,
+        },
+      });
+      setBudgets(response.data.data);
+      setTotal(response.data.total);
+    } catch (error) {
+      console.error("Erro ao buscar orçamentos:", error);
+    } finally {
+      setLoading(false);
     }
+  }
 
+  useEffect(() => {
     fetchBudgets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onlyPendingApproval, debouncedFilter, page, limit]);
 
-  const getBudgetStatus = (budget: Budget) => {
-    if (budget.approved) return "Aprovado";
-    if (budget.requiresApproval && !budget.approved && !budget.rejected) {
-      return "Pendente de aprovação";
+  async function handleSellBudget() {
+    if (!budgetSellId) return;
+    try {
+      await api.patch(`/budgets/${budgetSellId}/sell`);
+      setShowConfirmModal(false);
+      setBudgetSellId("");
+      await fetchBudgets();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
+      console.error("Erro ao marcar como vendido o orçamento.");
     }
-    if (budget.rejected && !budget.approved) return "Reprovado";
-  };
+  }
 
   return (
     <div className="table-container">
@@ -153,11 +164,21 @@ export default function BudgetListPage() {
                     })}
                   </td>
                   <td>{budget.seller.name}</td>
-                  <td>{getBudgetStatus(budget)}</td>
+                  <td>{budget.status}</td>
                   <td className="d-flex gap-2">
                     <Button onClick={() => navigate(`/budgets/${budget.id}`)}>
                       Visualizar
                     </Button>
+                    {budget.approved && budget.status === "APROVADO" && (
+                      <Button
+                        onClick={() => {
+                          setBudgetSellId(budget.id);
+                          setShowConfirmModal(true);
+                        }}
+                      >
+                        <FiDollarSign />
+                      </Button>
+                    )}
                     {/* <button
                       className="button-edit"
                       onClick={() => navigate(`/budgets/${budget.id}/edit`)}
@@ -204,6 +225,27 @@ export default function BudgetListPage() {
           total={total}
         />
       </div>
+
+      <Modal
+        show={showConfirmModal}
+        onHide={() => setShowConfirmModal(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar redefinição</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Tem certeza de que deseja marcar este orçamento como <b>VENDIDO</b>?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button id="btn-cancel" onClick={() => setShowConfirmModal(false)}>
+            Cancelar
+          </Button>
+          <Button variant="danger" onClick={() => handleSellBudget()}>
+            Confirmar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }
