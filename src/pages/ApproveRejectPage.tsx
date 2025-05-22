@@ -14,6 +14,7 @@ interface Budget {
   customerName: string;
   total: number;
   discountPercent: number;
+  commissionPercent: number;
   createdAt: string;
   seller: {
     name: string;
@@ -102,6 +103,9 @@ export default function ApproveRejectPage() {
               </p>
               <p>
                 <strong>Desconto:</strong> {budget.discountPercent}%
+              </p>
+              <p>
+                <strong>Comissão:</strong> {budget.commissionPercent}%
               </p>
               <p>
                 <strong>Vendedor:</strong> {budget.seller.name}

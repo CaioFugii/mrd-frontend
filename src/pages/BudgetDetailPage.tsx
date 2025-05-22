@@ -28,6 +28,7 @@ interface Budget {
   customerEmail: string;
   customerPhone: string;
   discountPercent: number;
+  commissionPercent: number;
   total: number;
   issueInvoice: boolean;
   approved: boolean;
@@ -123,6 +124,10 @@ export default function BudgetDetailPage() {
               </p>
               <p>
                 <strong>Desconto:</strong> {budget.discountPercent}%
+              </p>
+
+              <p>
+                <strong>Comissão:</strong> {budget.commissionPercent}%
               </p>
 
               <p>

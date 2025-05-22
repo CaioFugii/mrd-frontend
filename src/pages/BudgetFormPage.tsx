@@ -49,6 +49,7 @@ export default function BudgetFormPage() {
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [discountPercent, setDiscountPercent] = useState(0);
+  const [commissionPercent, setCommissionPercent] = useState(0);
   const [issueInvoice, setIssueInvoice] = useState(true);
 
   useEffect(() => {
@@ -108,6 +109,7 @@ export default function BudgetFormPage() {
         customerEmail: customerEmail || null,
         customerPhone,
         discountPercent,
+        commissionPercent,
         issueInvoice,
         items: items.map((item) => ({
           productId: item.productId,
@@ -129,6 +131,7 @@ export default function BudgetFormPage() {
       setCustomerEmail("");
       setCustomerPhone("");
       setDiscountPercent(0);
+      setCommissionPercent(0);
       setItems([]);
     } catch (err) {
       console.error("Erro ao criar orçamento:", err);
@@ -185,16 +188,37 @@ export default function BudgetFormPage() {
           <Form.Group className="mb-3" controlId="discountPercent">
             <Form.Label>Desconto (%)</Form.Label>
             <Form.Control
-              type="text"
+              type="number"
               value={discountPercent}
-              placeholder="0"
+              placeholder="0.0"
+              min={0}
+              max={100}
+              step={0.1}
               onChange={(e) => {
-                const onlyDigits = e.target.value.replace(/\D/g, "");
-                const value = Number(onlyDigits);
-                if (value >= 0 && value <= 100) {
+                const value = parseFloat(e.target.value);
+                if (!isNaN(value) && value >= 0 && value <= 100) {
                   setDiscountPercent(value);
-                } else if (onlyDigits === "") {
+                } else if (e.target.value === "") {
                   setDiscountPercent(0);
+                }
+              }}
+            />
+          </Form.Group>
+          <Form.Group controlId="commissionPercent">
+            <Form.Label>Comissão (%)</Form.Label>
+            <Form.Control
+              type="number"
+              value={commissionPercent}
+              placeholder="0.0"
+              min={0}
+              max={3}
+              step={0.1}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value);
+                if (!isNaN(value) && value >= 0 && value <= 3) {
+                  setCommissionPercent(value);
+                } else if (e.target.value === "") {
+                  setCommissionPercent(0);
                 }
               }}
             />
@@ -206,6 +230,7 @@ export default function BudgetFormPage() {
               label="Com emissão de Nota Fiscal"
               checked={issueInvoice}
               onChange={(e) => setIssueInvoice(e.target.checked)}
+              style={{ paddingTop: "10px" }}
             />
           </Form.Group>
 
