@@ -21,6 +21,7 @@ interface SelectedAddon {
 interface Props {
   productId: string;
   addons: SelectedAddon[];
+  disable: boolean;
   onChange: (updated: { quantity: number; addons: SelectedAddon[] }) => void;
   onRemove: () => void;
   onError: (message: string) => void;
@@ -29,6 +30,7 @@ interface Props {
 export default function BudgetItemEditor({
   productId,
   addons,
+  disable,
   onChange,
   onRemove,
   onError,
@@ -97,20 +99,30 @@ export default function BudgetItemEditor({
         <p>
           <strong>{productName}</strong> - {formatToBRL(price)}
         </p>
-        <Button onClick={onRemove}>
-          <MdDeleteOutline />
-        </Button>
+        {!disable && (
+          <>
+            <Button onClick={onRemove}>
+              <MdDeleteOutline />
+            </Button>
+          </>
+        )}
       </div>
 
       <p>Adicionais</p>
-      <Form.Control
-        size="sm"
-        type="text"
-        placeholder="Buscar adicional..."
-        value={addonSearch}
-        onChange={(e) => setAddonSearch(e.target.value)}
-        className="mb-3"
-      />
+      {!disable && (
+        <>
+          <Form.Control
+            size="sm"
+            type="text"
+            disabled={disable}
+            placeholder="Buscar adicional..."
+            value={addonSearch}
+            onChange={(e) => setAddonSearch(e.target.value)}
+            className="mb-3"
+          />
+        </>
+      )}
+
       <Card>
         <Card.Body className="scrollable-card-body">
           {availableAddons
@@ -128,6 +140,7 @@ export default function BudgetItemEditor({
                     <Form.Control
                       aria-describedby="inputGroup-sizing-sm"
                       inputMode="numeric"
+                      disabled={disable}
                       type="text"
                       value={selected?.quantity || 0}
                       onChange={(e) => {

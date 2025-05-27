@@ -9,6 +9,7 @@ import { formatToBRL } from "../utils/formatToBRL";
 import PaginationComponent from "../components/Pagintation";
 import { FiDollarSign } from "react-icons/fi";
 import Modal from "react-bootstrap/Modal";
+import { BsPencilSquare } from "react-icons/bs";
 // import { BsPencilSquare } from "react-icons/bs";
 
 interface Budget {
@@ -188,12 +189,15 @@ export default function BudgetListPage() {
                         <FiDollarSign />
                       </Button>
                     )}
-                    {/* <button
-                      className="button-edit"
-                      onClick={() => navigate(`/budgets/${budget.id}/edit`)}
-                    >
-                      <BsPencilSquare />
-                    </button> */}
+                    {budget.status !== "VENDIDO" && (
+                      <button
+                        className="button-edit"
+                        onClick={() => navigate(`/budgets/${budget.id}/edit`)}
+                      >
+                        <BsPencilSquare />
+                      </button>
+                    )}
+
                     {budget.requiresApproval &&
                       isSuperUser &&
                       !budget.approved &&

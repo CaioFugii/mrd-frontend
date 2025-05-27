@@ -33,6 +33,7 @@ interface SelectedAddon {
 }
 
 interface SelectedItem {
+  id: string;
   productId: string;
   addons: SelectedAddon[];
 }
@@ -51,6 +52,7 @@ export default function BudgetFormPage() {
   const [discountPercent, setDiscountPercent] = useState(0);
   const [commissionPercent, setCommissionPercent] = useState(0);
   const [issueInvoice, setIssueInvoice] = useState(true);
+  const [disable, setDisable] = useState(false);
 
   useEffect(() => {
     async function fetchProducts() {
@@ -67,16 +69,16 @@ export default function BudgetFormPage() {
       if (!id) return;
       try {
         const res = await api.get(`/budgets/${id}`);
-        const b = res.data;
+        const budgetContent = res.data;
 
-        console.log(b.items);
-        setCustomerName(b.customerName);
-        setCustomerEmail(b.customerEmail || "");
-        setCustomerPhone(b.customerPhone);
-        setDiscountPercent(b.discountPercent || 0);
-        setIssueInvoice(b.issueInvoice);
+        setCustomerName(budgetContent.customerName);
+        setCustomerEmail(budgetContent.customerEmail || "");
+        setCustomerPhone(budgetContent.customerPhone);
+        setDiscountPercent(budgetContent.discountPercent || 0);
+        setIssueInvoice(budgetContent.issueInvoice);
         setItems(
-          b.items.map((item: any) => ({
+          budgetContent.items.map((item: any) => ({
+            id: item.id,
             productId: item.productId,
             addons: item.addons.map((addon: any) => ({
               id: addon.addonId,
@@ -84,6 +86,8 @@ export default function BudgetFormPage() {
             })),
           }))
         );
+
+        setDisable(budgetContent.status === "VENDIDO");
       } catch (error) {
         console.error("Erro ao carregar orçamento:", error);
         setMessage("Erro ao carregar orçamento.");
@@ -99,18 +103,27 @@ export default function BudgetFormPage() {
   function addProduct(productId: string) {
     if (items.find((item) => item.productId === productId)) return;
 
-    setItems([...items, { productId, addons: [] }]);
+    setItems([
+      ...items,
+      {
+        productId,
+        addons: [],
+      },
+    ] as any);
   }
 
   async function handleSubmit() {
     try {
-      const payload = {
+      const detailsPayload = {
         customerName,
         customerEmail: customerEmail || null,
         customerPhone,
         discountPercent,
         commissionPercent,
         issueInvoice,
+      };
+
+      const itemsPayload = {
         items: items.map((item) => ({
           productId: item.productId,
           addons: item.addons.map((addon) => ({
@@ -121,21 +134,43 @@ export default function BudgetFormPage() {
       };
 
       if (isEditing) {
-        await api.put(`/budgets/${id}`, payload);
+        await api.put(`/budgets/${id}/details`, detailsPayload);
+        // await api.put(`/budgets/${id}/items`, itemsPayload);
         setMessage("Orçamento atualizado com sucesso!");
       } else {
-        await api.post("/budgets", payload);
+        await api.post("/budgets", {
+          ...detailsPayload,
+          ...itemsPayload,
+        });
         setMessage("Orçamento criado com sucesso!");
       }
-      setCustomerName("");
-      setCustomerEmail("");
-      setCustomerPhone("");
-      setDiscountPercent(0);
-      setCommissionPercent(0);
-      setItems([]);
+
+      if (!isEditing) {
+        setCustomerName("");
+        setCustomerEmail("");
+        setCustomerPhone("");
+        setDiscountPercent(0);
+        setCommissionPercent(0);
+        setIssueInvoice(true);
+        setItems([]);
+      }
+
+      // Redirecionar após sucesso (opcional)
+      setTimeout(() => navigate("/budgets"), 1000);
     } catch (err) {
-      console.error("Erro ao criar orçamento:", err);
-      setMessage("Erro ao criar orçamento");
+      console.error("Erro ao salvar orçamento:", err);
+      setMessage("Erro ao salvar orçamento");
+    }
+  }
+
+  async function handleDelete(index: number, budgetItemId: string) {
+    if (isEditing) {
+      await api.delete(`/budgets/${id}/items/${budgetItemId}`);
+      setItems(items.filter((_, i) => i !== index));
+      setMessage("Item removido do orçamento com sucesso!");
+    } else {
+      setItems(items.filter((_, i) => i !== index));
+      setMessage("Item removido do orçamento com sucesso!");
     }
   }
 
@@ -159,6 +194,7 @@ export default function BudgetFormPage() {
             <Form.Label>Nome</Form.Label>
             <Form.Control
               type="text"
+              disabled={disable}
               value={customerName}
               required={true}
               placeholder="Nome e sobrenome"
@@ -169,6 +205,7 @@ export default function BudgetFormPage() {
             <Form.Label>Email</Form.Label>
             <Form.Control
               type="email"
+              disabled={disable}
               value={customerEmail}
               placeholder="name@example.com"
               onChange={(e) => setCustomerEmail(e.target.value)}
@@ -178,6 +215,7 @@ export default function BudgetFormPage() {
             <Form.Label>Telefone</Form.Label>
             <Form.Control
               type="phone"
+              disabled={disable}
               value={customerPhone}
               placeholder="(xx)xxxx-xxxx"
               required={true}
@@ -189,6 +227,7 @@ export default function BudgetFormPage() {
             <Form.Label>Desconto (%)</Form.Label>
             <Form.Control
               type="number"
+              disabled={disable}
               value={discountPercent}
               placeholder="0.0"
               min={0}
@@ -209,6 +248,7 @@ export default function BudgetFormPage() {
             <Form.Control
               type="number"
               value={commissionPercent}
+              disabled={disable}
               placeholder="0.0"
               min={0}
               max={3}
@@ -227,6 +267,7 @@ export default function BudgetFormPage() {
             <Form.Check
               id="custom-switch"
               type="switch"
+              disabled={disable}
               label="Com emissão de Nota Fiscal"
               checked={issueInvoice}
               onChange={(e) => setIssueInvoice(e.target.checked)}
@@ -241,19 +282,21 @@ export default function BudgetFormPage() {
                 {products.map((product) => (
                   <ListGroup key={product.id} as="ol">
                     <ListGroup.Item variant="light">
-                      <>
-                        <Button
-                          style={{ marginRight: "10px" }}
-                          variant="primary"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            addProduct(product.id);
-                          }}
-                        >
-                          <MdOutlineFileDownloadDone />
-                        </Button>
-                        {product.name} - {formatToBRL(product.price)}
-                      </>
+                      {!disable && (
+                        <>
+                          <Button
+                            style={{ marginRight: "10px" }}
+                            variant="primary"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              addProduct(product.id);
+                            }}
+                          >
+                            <MdOutlineFileDownloadDone />
+                          </Button>
+                          {product.name} - {formatToBRL(product.price)}
+                        </>
+                      )}
                     </ListGroup.Item>
                   </ListGroup>
                 ))}
@@ -270,6 +313,7 @@ export default function BudgetFormPage() {
                     key={item.productId}
                     productId={item.productId}
                     addons={item.addons}
+                    disable={disable}
                     onChange={(updated) => {
                       const updatedItems = [...items];
                       updatedItems[index] = {
@@ -278,8 +322,8 @@ export default function BudgetFormPage() {
                       };
                       setItems(updatedItems);
                     }}
-                    onRemove={() => {
-                      setItems(items.filter((_, i) => i !== index));
+                    onRemove={async () => {
+                      await handleDelete(index, item.id);
                     }}
                     onError={(errorMessage) => setMessage(errorMessage)}
                   />
@@ -287,9 +331,13 @@ export default function BudgetFormPage() {
               </Card.Text>
             </Card.Body>
           </Card>
-          <Button onClick={handleSubmit}>
-            {isEditing ? "Atualizar Orçamento" : "Salvar Orçamento"}
-          </Button>
+          {!disable && (
+            <>
+              <Button onClick={handleSubmit}>
+                {isEditing ? "Atualizar Orçamento" : "Salvar Orçamento"}
+              </Button>
+            </>
+          )}
         </Form>
       </div>
       {message && (
@@ -308,3 +356,6 @@ export default function BudgetFormPage() {
     </div>
   );
 }
+
+// todo: Ao adicionar um item na atualizacao, nao esta adicionando.
+// todo: Criar nova funcionalidade de atualizar quantidade de ADDONS
