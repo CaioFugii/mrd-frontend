@@ -12,6 +12,7 @@ import { MdOutlineFileDownloadDone } from "react-icons/md";
 import { IoReturnUpBackOutline } from "react-icons/io5";
 import { formatToBRL } from "../utils/formatToBRL";
 import { formatPhone } from "../utils/formatPhone";
+import AddProductModal from "../components/AddProductModal";
 
 interface ProductAddon {
   id: string;
@@ -53,6 +54,7 @@ export default function BudgetFormPage() {
   const [commissionPercent, setCommissionPercent] = useState(0);
   const [issueInvoice, setIssueInvoice] = useState(true);
   const [disable, setDisable] = useState(false);
+  const [showProductModal, setShowProductModal] = useState(false);
 
   useEffect(() => {
     async function fetchProducts() {
@@ -174,188 +176,245 @@ export default function BudgetFormPage() {
     }
   }
 
+  async function handleAddProduct(productId: string, addons: SelectedAddon[]) {
+    try {
+      const result = await api.post(`/budgets/${id}/items`, {
+        item: {
+          productId,
+          addons,
+        },
+      });
+      setItems(
+        result.data?.map(
+          (item: {
+            id: string;
+            product: { id: string };
+            addons: SelectedAddon[];
+          }) => ({
+            id: item.id,
+            productId: item.product.id,
+            addons: item.addons?.map((addon) => ({
+              id: addon.id,
+              quantity: addon.quantity,
+            })),
+          })
+        ) || []
+      );
+      setProducts(result.data);
+      setMessage("Produto adicionado com sucesso");
+    } catch (error) {
+      console.error("Erro ao adicionar produto:", error);
+      setMessage("Erro ao adicionar produto");
+    }
+  }
+
   return (
-    <div style={{ display: "block" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-evenly",
-          margin: "20px 0px",
-        }}
-      >
-        <h2>{isEditing ? "Editar Orçamento" : "Novo Orçamento"}</h2>
-        <Button variant="primary" onClick={() => navigate("/budgets")}>
-          <IoReturnUpBackOutline /> Voltar para lista
-        </Button>
-      </div>
-      <div className="container-align">
-        <Form>
-          <Form.Group className="mb-3" controlId="customerName">
-            <Form.Label>Nome</Form.Label>
-            <Form.Control
-              type="text"
-              disabled={disable}
-              value={customerName}
-              required={true}
-              placeholder="Nome e sobrenome"
-              onChange={(e) => setCustomerName(e.target.value)}
-            />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="customerEmail">
-            <Form.Label>Email</Form.Label>
-            <Form.Control
-              type="email"
-              disabled={disable}
-              value={customerEmail}
-              placeholder="name@example.com"
-              onChange={(e) => setCustomerEmail(e.target.value)}
-            />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="customerPhone">
-            <Form.Label>Telefone</Form.Label>
-            <Form.Control
-              type="phone"
-              disabled={disable}
-              value={customerPhone}
-              placeholder="(xx)xxxx-xxxx"
-              required={true}
-              maxLength={15}
-              onChange={(e) => setCustomerPhone(formatPhone(e.target.value))}
-            />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="discountPercent">
-            <Form.Label>Desconto (%)</Form.Label>
-            <Form.Control
-              type="number"
-              disabled={disable}
-              value={discountPercent}
-              placeholder="0.0"
-              min={0}
-              max={100}
-              step={0.1}
-              onChange={(e) => {
-                const value = parseFloat(e.target.value);
-                if (!isNaN(value) && value >= 0 && value <= 100) {
-                  setDiscountPercent(value);
-                } else if (e.target.value === "") {
-                  setDiscountPercent(0);
-                }
-              }}
-            />
-          </Form.Group>
-          <Form.Group controlId="commissionPercent">
-            <Form.Label>Comissão (%)</Form.Label>
-            <Form.Control
-              type="number"
-              value={commissionPercent}
-              disabled={disable}
-              placeholder="0.0"
-              min={0}
-              max={3}
-              step={0.1}
-              onChange={(e) => {
-                const value = parseFloat(e.target.value);
-                if (!isNaN(value) && value >= 0 && value <= 3) {
-                  setCommissionPercent(value);
-                } else if (e.target.value === "") {
-                  setCommissionPercent(0);
-                }
-              }}
-            />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="enableFeature">
-            <Form.Check
-              id="custom-switch"
-              type="switch"
-              disabled={disable}
-              label="Com emissão de Nota Fiscal"
-              checked={issueInvoice}
-              onChange={(e) => setIssueInvoice(e.target.checked)}
-              style={{ paddingTop: "10px" }}
-            />
-          </Form.Group>
-
-          <Card>
-            <Card.Header>Produtos Disponíveis</Card.Header>
-            <Card.Body className="scrollable-card-body">
-              <Card.Text>
-                {products.map((product) => (
-                  <ListGroup key={product.id} as="ol">
-                    <ListGroup.Item variant="light">
-                      {!disable && (
-                        <>
-                          <Button
-                            style={{ marginRight: "10px" }}
-                            variant="primary"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              addProduct(product.id);
-                            }}
-                          >
-                            <MdOutlineFileDownloadDone />
-                          </Button>
-                          {product.name} - {formatToBRL(product.price)}
-                        </>
-                      )}
-                    </ListGroup.Item>
-                  </ListGroup>
-                ))}
-              </Card.Text>
-            </Card.Body>
-          </Card>
-
-          <Card>
-            <Card.Header>Itens Selecionados</Card.Header>
-            <Card.Body>
-              <Card.Text>
-                {items.map((item, index) => (
-                  <BudgetItemEditor
-                    key={item.productId}
-                    productId={item.productId}
-                    addons={item.addons}
-                    disable={disable}
-                    onChange={(updated) => {
-                      const updatedItems = [...items];
-                      updatedItems[index] = {
-                        ...updatedItems[index],
-                        ...updated,
-                      };
-                      setItems(updatedItems);
-                    }}
-                    onRemove={async () => {
-                      await handleDelete(index, item.id);
-                    }}
-                    onError={(errorMessage) => setMessage(errorMessage)}
-                  />
-                ))}
-              </Card.Text>
-            </Card.Body>
-          </Card>
-          {!disable && (
-            <>
-              <Button onClick={handleSubmit}>
-                {isEditing ? "Atualizar Orçamento" : "Salvar Orçamento"}
-              </Button>
-            </>
-          )}
-        </Form>
-      </div>
-      {message && (
+    <>
+      <div style={{ display: "block" }}>
         <div
           style={{
             display: "flex",
-            justifyContent: "center",
+            justifyContent: "space-evenly",
             margin: "20px 0px",
           }}
         >
-          <Alert variant={message.includes("sucesso") ? "success" : "danger"}>
-            {message}
-          </Alert>
+          <h2>{isEditing ? "Editar Orçamento" : "Novo Orçamento"}</h2>
+          <Button variant="primary" onClick={() => navigate("/budgets")}>
+            <IoReturnUpBackOutline /> Voltar para lista
+          </Button>
         </div>
-      )}
-    </div>
+        <div className="container-align">
+          <Form>
+            <Form.Group className="mb-3" controlId="customerName">
+              <Form.Label>Nome</Form.Label>
+              <Form.Control
+                type="text"
+                disabled={disable}
+                value={customerName}
+                required={true}
+                placeholder="Nome e sobrenome"
+                onChange={(e) => setCustomerName(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="customerEmail">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                disabled={disable}
+                value={customerEmail}
+                placeholder="name@example.com"
+                onChange={(e) => setCustomerEmail(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="customerPhone">
+              <Form.Label>Telefone</Form.Label>
+              <Form.Control
+                type="phone"
+                disabled={disable}
+                value={customerPhone}
+                placeholder="(xx)xxxx-xxxx"
+                required={true}
+                maxLength={15}
+                onChange={(e) => setCustomerPhone(formatPhone(e.target.value))}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="discountPercent">
+              <Form.Label>Desconto (%)</Form.Label>
+              <Form.Control
+                type="number"
+                disabled={disable}
+                value={discountPercent}
+                placeholder="0.0"
+                min={0}
+                max={100}
+                step={0.1}
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value);
+                  if (!isNaN(value) && value >= 0 && value <= 100) {
+                    setDiscountPercent(value);
+                  } else if (e.target.value === "") {
+                    setDiscountPercent(0);
+                  }
+                }}
+              />
+            </Form.Group>
+            <Form.Group controlId="commissionPercent">
+              <Form.Label>Comissão (%)</Form.Label>
+              <Form.Control
+                type="number"
+                value={commissionPercent}
+                disabled={disable}
+                placeholder="0.0"
+                min={0}
+                max={3}
+                step={0.1}
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value);
+                  if (!isNaN(value) && value >= 0 && value <= 3) {
+                    setCommissionPercent(value);
+                  } else if (e.target.value === "") {
+                    setCommissionPercent(0);
+                  }
+                }}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="enableFeature">
+              <Form.Check
+                id="custom-switch"
+                type="switch"
+                disabled={disable}
+                label="Com emissão de Nota Fiscal"
+                checked={issueInvoice}
+                onChange={(e) => setIssueInvoice(e.target.checked)}
+                style={{ paddingTop: "10px" }}
+              />
+            </Form.Group>
+            {!isEditing && (
+              <Card>
+                <Card.Header>Produtos Disponíveis</Card.Header>
+                <Card.Body className="scrollable-card-body">
+                  <Card.Text>
+                    {products.map((product) => (
+                      <ListGroup key={product.id} as="ol">
+                        <ListGroup.Item variant="light">
+                          {!disable && (
+                            <>
+                              <Button
+                                style={{ marginRight: "10px" }}
+                                variant="primary"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  addProduct(product.id);
+                                }}
+                              >
+                                <MdOutlineFileDownloadDone />
+                              </Button>
+                              {product.name} - {formatToBRL(product.price)}
+                            </>
+                          )}
+                        </ListGroup.Item>
+                      </ListGroup>
+                    ))}
+                  </Card.Text>
+                </Card.Body>
+              </Card>
+            )}
+
+            {isEditing && !disable && (
+              <div
+                style={{
+                  marginTop: "1rem",
+                  textAlign: "right",
+                  paddingBottom: "10px",
+                }}
+              >
+                <Button onClick={() => setShowProductModal(true)}>
+                  + Adicionar produto
+                </Button>
+              </div>
+            )}
+
+            <Card>
+              <Card.Header>Itens Selecionados</Card.Header>
+              <Card.Body>
+                <Card.Text>
+                  {items.map((item, index) => (
+                    <BudgetItemEditor
+                      key={item.productId}
+                      productId={item.productId}
+                      addons={item.addons}
+                      disable={disable}
+                      onChange={(updated) => {
+                        const updatedItems = [...items];
+                        updatedItems[index] = {
+                          ...updatedItems[index],
+                          ...updated,
+                        };
+                        setItems(updatedItems);
+                      }}
+                      onRemove={async () => {
+                        await handleDelete(index, item.id);
+                      }}
+                      onError={(errorMessage) => setMessage(errorMessage)}
+                    />
+                  ))}
+                </Card.Text>
+              </Card.Body>
+            </Card>
+            {!disable && (
+              <>
+                <Button onClick={handleSubmit}>
+                  {isEditing ? "Atualizar Orçamento" : "Salvar Orçamento"}
+                </Button>
+              </>
+            )}
+          </Form>
+        </div>
+        {message && (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              margin: "20px 0px",
+            }}
+          >
+            <Alert variant={message.includes("sucesso") ? "success" : "danger"}>
+              {message}
+            </Alert>
+          </div>
+        )}
+      </div>
+      <AddProductModal
+        show={showProductModal}
+        onClose={() => setShowProductModal(false)}
+        products={products}
+        items={items}
+        onAddProduct={async (productId, addons) => {
+          await handleAddProduct(productId, addons);
+        }}
+      />
+    </>
   );
 }
 
-// todo: Ao adicionar um item na atualizacao, nao esta adicionando.
 // todo: Criar nova funcionalidade de atualizar quantidade de ADDONS
