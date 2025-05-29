@@ -48,7 +48,7 @@ export default function AddonFormPage() {
         setMessage("Adicional criado com sucesso!");
       }
 
-      setTimeout(() => navigate("/addons"), 1000);
+      setTimeout(() => navigate("/addons"), 2000);
     } catch (err) {
       console.error(err);
       setMessage("Erro ao salvar adicional.");

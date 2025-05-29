@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import api from "../services/api";
-import BudgetItemEditor from "../components/BudgetItemEditor";
 import { useNavigate, useParams } from "react-router-dom";
 import Form from "react-bootstrap/Form";
 import Card from "react-bootstrap/Card";
@@ -13,6 +13,8 @@ import { IoReturnUpBackOutline } from "react-icons/io5";
 import { formatToBRL } from "../utils/formatToBRL";
 import { formatPhone } from "../utils/formatPhone";
 import AddProductModal from "../components/AddProductModal";
+import BudgetItemEditorModal from "../components/BudgetItemEditorModal";
+import { Modal } from "react-bootstrap";
 
 interface ProductAddon {
   id: string;
@@ -25,18 +27,24 @@ interface Product {
   id: string;
   name: string;
   price: number;
-  addons: ProductAddon[];
+  addons?: ProductAddon[];
 }
 
 interface SelectedAddon {
   id: string;
   quantity: number;
+  addonNameSnapshot?: string;
+  addonPriceSnapshot?: string;
+  addon?: { id: string };
 }
 
 interface SelectedItem {
-  id: string;
   productId: string;
   addons: SelectedAddon[];
+  productNameSnapshot?: string;
+  productPriceSnapshot?: string;
+  id?: string;
+  totalPrice?: string;
 }
 
 export default function BudgetFormPage() {
@@ -46,7 +54,6 @@ export default function BudgetFormPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [items, setItems] = useState<SelectedItem[]>([]);
   const [message, setMessage] = useState("");
-
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -55,6 +62,12 @@ export default function BudgetFormPage() {
   const [issueInvoice, setIssueInvoice] = useState(true);
   const [disable, setDisable] = useState(false);
   const [showProductModal, setShowProductModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
+  const [deleteBudgetItemId, setDeleteBudgetItemId] = useState<string | null>(
+    null
+  );
+  const [itemToEditIndex, setItemToEditIndex] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchProducts() {
@@ -82,13 +95,17 @@ export default function BudgetFormPage() {
           budgetContent.items.map((item: any) => ({
             id: item.id,
             productId: item.productId,
+            productNameSnapshot: item.productNameSnapshot ?? "",
+            productPriceSnapshot: item.productPriceSnapshot ?? "",
+            totalPrice: item.totalPrice ?? "",
             addons: item.addons.map((addon: any) => ({
               id: addon.addonId,
               quantity: addon.quantity,
+              addonNameSnapshot: addon.addonNameSnapshot ?? "",
+              addonPriceSnapshot: addon.addonPriceSnapshot ?? "",
             })),
           }))
         );
-
         setDisable(budgetContent.status === "VENDIDO");
       } catch (error) {
         console.error("Erro ao carregar orçamento:", error);
@@ -102,16 +119,23 @@ export default function BudgetFormPage() {
     }
   }, [id, isEditing]);
 
-  function addProduct(productId: string) {
-    if (items.find((item) => item.productId === productId)) return;
+  function addProduct(product: Product) {
+    if (items.find((item) => item.productId === product.id)) return;
 
     setItems([
       ...items,
       {
-        productId,
+        productId: product.id,
+        productNameSnapshot: product.name,
+        productPriceSnapshot: product.price,
         addons: [],
       },
     ] as any);
+  }
+
+  function openEditItemModal(index: number) {
+    setItemToEditIndex(index);
+    setShowEditModal(true);
   }
 
   async function handleSubmit() {
@@ -157,19 +181,24 @@ export default function BudgetFormPage() {
         setItems([]);
       }
 
-      // Redirecionar após sucesso (opcional)
-      setTimeout(() => navigate("/budgets"), 1000);
+      setTimeout(() => navigate("/budgets"), 2000);
     } catch (err) {
       console.error("Erro ao salvar orçamento:", err);
       setMessage("Erro ao salvar orçamento");
     }
   }
 
-  async function handleDelete(index: number, budgetItemId: string) {
-    if (isEditing) {
-      await api.delete(`/budgets/${id}/items/${budgetItemId}`);
-      setItems(items.filter((_, i) => i !== index));
-      setMessage("Item removido do orçamento com sucesso!");
+  async function handleDelete(index?: number) {
+    if (isEditing && deleteBudgetItemId) {
+      try {
+        await api.delete(`/budgets/${id}/items/${deleteBudgetItemId}`);
+        setItems(items.filter((item) => item.id !== deleteBudgetItemId));
+        setShowConfirmDeleteModal(false);
+        setMessage("Item removido do orçamento com sucesso!");
+      } catch (error) {
+        console.error("Erro ao remover Item do orçamento:", error);
+        setMessage("Erro ao remover Item do orçamento!");
+      }
     } else {
       setItems(items.filter((_, i) => i !== index));
       setMessage("Item removido do orçamento com sucesso!");
@@ -188,14 +217,23 @@ export default function BudgetFormPage() {
         result.data?.map(
           (item: {
             id: string;
+            productNameSnapshot: string;
+            productPriceSnapshot: string;
+            totalPrice: string;
             product: { id: string };
             addons: SelectedAddon[];
           }) => ({
             id: item.id,
             productId: item.product.id,
+            productNameSnapshot: item.productNameSnapshot,
+            productPriceSnapshot: item.productPriceSnapshot,
+            totalPrice: item.totalPrice,
             addons: item.addons?.map((addon) => ({
-              id: addon.id,
+              //@ts-ignore
+              id: addon.addon.id,
               quantity: addon.quantity,
+              addonNameSnapshot: addon.addonNameSnapshot,
+              addonPriceSnapshot: addon.addonPriceSnapshot,
             })),
           })
         ) || []
@@ -324,7 +362,7 @@ export default function BudgetFormPage() {
                                 variant="primary"
                                 onClick={(e) => {
                                   e.preventDefault();
-                                  addProduct(product.id);
+                                  addProduct(product);
                                 }}
                               >
                                 <MdOutlineFileDownloadDone />
@@ -359,24 +397,51 @@ export default function BudgetFormPage() {
               <Card.Body>
                 <Card.Text>
                   {items.map((item, index) => (
-                    <BudgetItemEditor
-                      key={item.productId}
-                      productId={item.productId}
-                      addons={item.addons}
-                      disable={disable}
-                      onChange={(updated) => {
-                        const updatedItems = [...items];
-                        updatedItems[index] = {
-                          ...updatedItems[index],
-                          ...updated,
-                        };
-                        setItems(updatedItems);
-                      }}
-                      onRemove={async () => {
-                        await handleDelete(index, item.id);
-                      }}
-                      onError={(errorMessage) => setMessage(errorMessage)}
-                    />
+                    <Card key={item.productId} className="mb-2">
+                      <Card.Body>
+                        <p>
+                          <strong>Produto:</strong> {item.productNameSnapshot} -{" "}
+                          {item?.productPriceSnapshot
+                            ? formatToBRL(item?.productPriceSnapshot)
+                            : ""}
+                        </p>
+                        <strong>Adicionais:</strong>{" "}
+                        <ul>
+                          {item.addons?.map((addon) => (
+                            <li key={addon.id}>
+                              {addon?.quantity} x {addon?.addonNameSnapshot}
+                            </li>
+                          ))}
+                        </ul>
+                        {!disable && (
+                          <div className="d-flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => openEditItemModal(index)}
+                            >
+                              Editar
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="danger"
+                              onClick={async () => {
+                                if (isEditing) {
+                                  setShowConfirmDeleteModal(true);
+                                  //@ts-ignore
+                                  setDeleteBudgetItemId(item.id);
+                                  return;
+                                } else {
+                                  await handleDelete(index);
+                                  return;
+                                }
+                              }}
+                            >
+                              Remover
+                            </Button>
+                          </div>
+                        )}
+                      </Card.Body>
+                    </Card>
                   ))}
                 </Card.Text>
               </Card.Body>
@@ -413,6 +478,51 @@ export default function BudgetFormPage() {
           await handleAddProduct(productId, addons);
         }}
       />
+      <Modal
+        show={showConfirmDeleteModal}
+        onHide={() => setShowConfirmDeleteModal(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar remoção</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Tem certeza de que deseja excluir este produto?</Modal.Body>
+        <Modal.Footer>
+          <Button
+            id="btn-cancel"
+            onClick={() => setShowConfirmDeleteModal(false)}
+          >
+            Cancelar
+          </Button>
+          <Button
+            variant="danger"
+            onClick={async () => {
+              await handleDelete();
+            }}
+          >
+            Confirmar
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {itemToEditIndex !== null && (
+        <BudgetItemEditorModal
+          show={showEditModal}
+          budgetId={id}
+          onClose={() => {
+            setShowEditModal(false);
+            setItemToEditIndex(null);
+          }}
+          item={items[itemToEditIndex]}
+          onUpdate={(updatedItem) => {
+            const updated = [...items];
+            updated[itemToEditIndex] = updatedItem;
+            setItems(updated);
+            setShowEditModal(false);
+            setItemToEditIndex(null);
+          }}
+        />
+      )}
     </>
   );
 }

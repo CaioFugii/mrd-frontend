@@ -100,19 +100,41 @@ export default function AddProductModal({
             {availableProducts.length === 0 && (
               <p>Nenhum produto disponível.</p>
             )}
-            {availableProducts.map((product) => (
-              <Card key={product.id} style={{ marginBottom: "1rem" }}>
-                <Card.Body>
+            <Card
+              style={{ marginBottom: "1rem" }}
+              className="scrollable-card-body"
+            >
+              {availableProducts.map((product) => (
+                <Card.Body
+                  key={product.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
                   <Card.Title>{product.name}</Card.Title>
-                  <Card.Subtitle className="mb-2 text-muted">
-                    {formatToBRL(product.price)}
-                  </Card.Subtitle>
-                  <Button onClick={() => setSelectedProduct(product)}>
-                    Selecionar
-                  </Button>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "end",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Card.Subtitle className="mb-2 text-muted">
+                      {formatToBRL(product.price)}
+                    </Card.Subtitle>
+                    <Button
+                      style={{ marginLeft: "10px" }}
+                      onClick={() => setSelectedProduct(product)}
+                    >
+                      Selecionar
+                    </Button>
+                  </div>
                 </Card.Body>
-              </Card>
-            ))}
+              ))}
+            </Card>
           </>
         ) : (
           <>
@@ -131,15 +153,17 @@ export default function AddProductModal({
                 Voltar à lista
               </Button>
             </div>
-
-            <Form.Control
-              size="sm"
-              type="text"
-              placeholder="Buscar adicional..."
-              value={addonSearch}
-              onChange={(e) => setAddonSearch(e.target.value)}
-              className="mb-3"
-            />
+            <div>
+              <Form.Control
+                size="sm"
+                type="text"
+                placeholder="Buscar adicional..."
+                value={addonSearch}
+                onChange={(e) => setAddonSearch(e.target.value)}
+                className="mb-3"
+                style={{ width: "100%" }}
+              />
+            </div>
 
             <Card>
               <Card.Body className="scrollable-card-body">

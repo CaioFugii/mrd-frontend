@@ -65,7 +65,7 @@ export default function ApproveRejectPage() {
       await api.patch(`/budgets/${id}/reject`, { reason });
       setMessage("Orçamento rejeitado com sucesso!");
 
-      setTimeout(() => navigate("/budgets"), 1000);
+      setTimeout(() => navigate("/budgets"), 2000);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       setMessage("Erro ao rejeitar orçamento.");

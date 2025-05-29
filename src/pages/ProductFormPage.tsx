@@ -74,7 +74,7 @@ export default function ProductFormPage() {
         setMessage("Produto criado com sucesso!");
       }
 
-      setTimeout(() => navigate("/products"), 1000);
+      setTimeout(() => navigate("/products"), 2000);
     } catch (err) {
       console.error(err);
       setMessage("Erro ao salvar produto.");
