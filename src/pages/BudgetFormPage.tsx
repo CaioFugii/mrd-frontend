@@ -90,6 +90,7 @@ export default function BudgetFormPage() {
         setCustomerEmail(budgetContent.customerEmail || "");
         setCustomerPhone(budgetContent.customerPhone);
         setDiscountPercent(budgetContent.discountPercent || 0);
+        setCommissionPercent(budgetContent.commissionPercent || 0);
         setIssueInvoice(budgetContent.issueInvoice);
         setItems(
           budgetContent.items.map((item: any) => ({
@@ -161,7 +162,6 @@ export default function BudgetFormPage() {
 
       if (isEditing) {
         await api.put(`/budgets/${id}/details`, detailsPayload);
-        // await api.put(`/budgets/${id}/items`, itemsPayload);
         setMessage("Orçamento atualizado com sucesso!");
       } else {
         await api.post("/budgets", {
